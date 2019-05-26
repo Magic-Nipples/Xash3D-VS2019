@@ -26,4 +26,4 @@ HAWK\
 qpAHToMAS\
 LokiMB\
 Msteam\
-(_-=ZhekA=-_)\
+(_-=ZhekA=-_)
