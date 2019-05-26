@@ -104,6 +104,10 @@ cvar_t	*cl_bobup;
 cvar_t	*cl_waterdist;
 cvar_t	*cl_chasedist;
 
+//magic nipples - view roll
+cvar_t *cl_rollspeed;
+cvar_t *cl_rollangle;
+
 // These cvars are not registered (so users can't cheat), so set the ->value field directly
 // Register these cvars in V_Init() if needed for easy tweaking
 cvar_t	v_iyaw_cycle		= {"v_iyaw_cycle", "2", 0, 2};
@@ -403,16 +407,13 @@ Roll is induced by movement and damage
 */
 void V_CalcViewRoll ( struct ref_params_s *pparams )
 {
-	float		side;
 	cl_entity_t *viewentity;
 	
 	viewentity = gEngfuncs.GetEntityByIndex( pparams->viewentity );
 	if ( !viewentity )
 		return;
 
-	side = V_CalcRoll ( viewentity->angles, pparams->simvel, pparams->movevars->rollangle, pparams->movevars->rollspeed );
-
-	pparams->viewangles[ROLL] += side;
+	pparams->viewangles[ROLL] = V_CalcRoll( pparams->viewangles, pparams->simvel, cl_rollangle->value, cl_rollspeed->value ) * 4; // magic nipples - view roll
 
 	if ( pparams->health <= 0 && ( pparams->viewheight[2] != 0 ) )
 	{
@@ -1689,6 +1690,9 @@ void V_Init (void)
 	cl_bobup			= gEngfuncs.pfnRegisterVariable( "cl_bobup","0.5", 0 );
 	cl_waterdist		= gEngfuncs.pfnRegisterVariable( "cl_waterdist","4", 0 );
 	cl_chasedist		= gEngfuncs.pfnRegisterVariable( "cl_chasedist","112", 0 );
+
+	cl_rollspeed		= gEngfuncs.pfnRegisterVariable("cl_rollspeed", "325", FCVAR_CLIENTDLL | FCVAR_ARCHIVE);
+	cl_rollangle		= gEngfuncs.pfnRegisterVariable("cl_rollangle", "0.6", FCVAR_CLIENTDLL | FCVAR_ARCHIVE);
 }
 
 
