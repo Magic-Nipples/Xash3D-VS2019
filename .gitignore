@@ -8,6 +8,7 @@
 *.obj
 
 # Ignore these folders
+*.vs
 bin/
 int/
 
