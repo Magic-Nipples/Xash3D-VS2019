@@ -36,18 +36,37 @@ key_t	keys[256];
 
 keyname_t keynames[] =
 {
-{"TAB",		K_TAB,		""		},
-{"ENTER",		K_ENTER,		""		},
+//{"TAB",		K_TAB,		""		},
+//{"ENTER",		K_ENTER,		""		},
 {"ESCAPE",	K_ESCAPE, 	"escape"		}, // hardcoded
 {"SPACE",		K_SPACE,		"+jump"		},
-{"BACKSPACE",	K_BACKSPACE,	""		},
-{"UPARROW",	K_UPARROW,	"+forward"	},
-{"DOWNARROW",	K_DOWNARROW,	"+back"		},
+//{"BACKSPACE",	K_BACKSPACE,	""		},
+//
+{"w",	'w',	"+forward"	},
+{"s",	's',	"+back"	},
+{"a",	'a',	"+moveleft"	},
+{"d",	'd',	"+moveright"	},
+//
+{"UPARROW",	K_UPARROW,	"+lookup"	},
+{"DOWNARROW",	K_DOWNARROW,	"+lookdown"		},
 {"LEFTARROW",	K_LEFTARROW,	"+left"		},
 {"RIGHTARROW",	K_RIGHTARROW,	"+right"		},
-{"ALT",		K_ALT,		"+strafe"		},
-{"CTRL",		K_CTRL,		"+attack"		},
+//
+{"CTRL",		K_CTRL,		"+duck"		},
 {"SHIFT",		K_SHIFT,		"+speed"		},
+//
+{"f",	'f',	"impulse 100"	},
+{"g",	'g',	"impulse 201"	},
+{"f",	'r',	"+reload"	},
+{"e",	'e',	"+use"	},
+{"q",	'q',	"lastinv"	},
+//
+{"1",	'1',	"slot1"	},
+{"2",	'2',	"slot2"	},
+{"3",	'3',	"slot3"	},
+{"4",	'4',	"slot4"	},
+{"5",	'5',	"slot5"	},
+/*
 {"CAPSLOCK",	K_CAPSLOCK,	""		},
 {"SCROLLOCK",	K_SCROLLOCK,	""		},
 {"F1",		K_F1,		"cmd help"	},
@@ -63,22 +82,21 @@ keyname_t keynames[] =
 {"F11",		K_F11,		""		},
 {"F12",		K_F12,		"snapshot"	},
 {"INS",		K_INS,		""		},
-{"DEL",		K_DEL,		"+lookdown"	},
-{"PGDN",		K_PGDN,		"+lookup"		},
 {"PGUP",		K_PGUP,		""		},
 {"HOME",		K_HOME,		""		},
 {"END",		K_END,		"centerview"	},
-
-// mouse buttouns
+*/
+// mouse buttons
 {"MOUSE1",	K_MOUSE1,		"+attack"		},
 {"MOUSE2",	K_MOUSE2,		"+attack2"	},
 {"MOUSE3",	K_MOUSE3,		""		},
 {"MOUSE4",	K_MOUSE4,		""		},
 {"MOUSE5",	K_MOUSE5,		""		},
-{"MWHEELUP",	K_MWHEELUP,	""		},
-{"MWHEELDOWN",	K_MWHEELDOWN,	""		},
+{"MWHEELUP",	K_MWHEELUP,	"invnext"		},
+{"MWHEELDOWN",	K_MWHEELDOWN,	"invprev"		},
 
 // digital keyboard
+/*
 {"KP_HOME",	K_KP_HOME,	""		},
 {"KP_UPARROW",	K_KP_UPARROW,	"+forward"	},
 {"KP_PGUP",	K_KP_PGUP,	""		},
@@ -95,6 +113,7 @@ keyname_t keynames[] =
 {"KP_MINUS",	K_KP_MINUS,	""		},
 {"KP_PLUS",	K_KP_PLUS,	""		},
 {"PAUSE",		K_PAUSE,		"pause"		},
+*/
 
 // raw semicolon seperates commands
 {"SEMICOLON",	';',		""		},
