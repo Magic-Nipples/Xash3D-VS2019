@@ -7,6 +7,10 @@
 *.o
 *.obj
 
+# Ignore these folders
+bin/
+int/
+
 # Precompiled Headers
 *.gch
 *.pch
