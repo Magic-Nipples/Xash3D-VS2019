@@ -132,11 +132,17 @@
     </Link>
     <CustomBuildStep />
     <CustomBuildStep>
-      <Command>copy $(TargetDir)\menu.dll "D:\Documents\Xash3D-VS2019_build\menu.dll"</Command>
+      <Command>
+      </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Outputs>D:\Documents\Xash3D-VS2019_build\menu.dll</Outputs>
+      <Outputs>
+      </Outputs>
     </CustomBuildStep>
+    <PostBuildEvent>
+      <Message>Performing Post-Build Event</Message>
+      <Command>copy $(TargetDir)\menu.dll "D:\Documents\Xash3D-VS2019_build\menu.dll"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="basemenu.cpp" />

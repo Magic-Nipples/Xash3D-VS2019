@@ -851,8 +851,13 @@ void R_BlendLightmaps( void )
 	pglDepthFunc( GL_EQUAL );
 
 	pglDisable( GL_ALPHA_TEST );
-	pglBlendFunc( GL_ZERO, GL_SRC_COLOR );
-	pglTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
+	//pglBlendFunc( GL_ZERO, GL_SRC_COLOR );
+	//pglTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
+
+	if ((cl.local.waterlevel >= 3) || (r_overbright->value == 0)) //magic nipples - disable overbrights underwater. nasty way to fix fog glitch
+		pglBlendFunc(GL_ZERO, GL_SRC_COLOR);
+	else
+		pglBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
 
 	// render static lightmaps first
 	for( i = 0; i < MAX_LIGHTMAPS; i++ )

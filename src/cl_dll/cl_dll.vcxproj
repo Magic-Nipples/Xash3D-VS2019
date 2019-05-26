@@ -126,11 +126,19 @@
     </Link>
     <CustomBuildStep />
     <CustomBuildStep>
-      <Command>copy $(TargetDir)\client.dll "D:\Documents\Xash3D-VS2019_build\valve\bin\client.dll"</Command>
+      <Command>
+      </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Outputs>D:\Documents\Xash3D-VS2019_build\valve\bin\client.dll</Outputs>
+      <Outputs>
+      </Outputs>
     </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>copy $(TargetDir)\client.dll "D:\Documents\Xash3D-VS2019_build\valve\bin\client.dll"</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Performing Post-Build Event</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\dlls\crossbow.cpp" />

@@ -84,11 +84,18 @@
     </Link>
     <CustomBuildStep />
     <CustomBuildStep>
-      <Command>copy $(TargetDir)\hl.exe "D:\Documents\Xash3D-VS2019_build\hl.exe"</Command>
+      <Command>
+      </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Outputs>D:\Documents\Xash3D-VS2019_build\hl.exe</Outputs>
+      <Outputs>
+      </Outputs>
     </CustomBuildStep>
+    <PostBuildEvent>
+      <Message>Performing Post-Build Event</Message>
+      <Command>copy $(TargetDir)\hl.exe "D:\Documents\Xash3D-VS2019_build\hl.exe"
+copy $(TargetDir)\hl.exe "D:\Documents\Xash3D-VS2019_build\console.exe"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile />

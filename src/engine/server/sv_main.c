@@ -854,6 +854,8 @@ void SV_Init( void )
 	// when we in developer-mode automatically turn cheats on
 	if( host_developer.value ) Cvar_SetValue( "sv_cheats", 1.0f );
 
+	if (host.allow_console) Cvar_SetValue("sv_cheats", 1.0f); //magic nipples - allowing cheats with console as well
+
 	MSG_Init( &net_message, "NetMessage", net_message_buffer, sizeof( net_message_buffer ));
 
 	Q_snprintf( versionString, sizeof( versionString ), "%s: %s,%i,%i", "Xash3D", XASH_VERSION, PROTOCOL_VERSION, Q_buildnum() );

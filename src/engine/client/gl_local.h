@@ -683,4 +683,6 @@ extern convar_t	*vid_brightness;
 extern convar_t	*vid_gamma;
 extern convar_t	*vid_mode;
 
+extern convar_t* r_overbright; //magic nipples - overbright
+
 #endif//GL_LOCAL_H

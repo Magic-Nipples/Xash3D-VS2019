@@ -15,6 +15,7 @@
     <SccLocalPath />
     <ProjectGuid>{AD230D79-4170-4754-87E8-6527A7ABEFAB}</ProjectGuid>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>server</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -91,11 +92,17 @@
     </Link>
     <CustomBuildStep />
     <CustomBuildStep>
-      <Command>copy $(TargetDir)\server.dll "D:\Documents\Xash3D-VS2019_build\valve\bin\server.dll"</Command>
+      <Command>
+      </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Outputs>D:\Documents\Xash3D-VS2019_build\valve\bin\server.dll</Outputs>
+      <Outputs>
+      </Outputs>
     </CustomBuildStep>
+    <PostBuildEvent>
+      <Message>Performing Post-Build Event</Message>
+      <Command>copy $(TargetDir)\server.dll "D:\Documents\Xash3D-VS2019_build\valve\bin\server.dll"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

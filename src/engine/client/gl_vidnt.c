@@ -69,6 +69,7 @@ convar_t	*r_lockfrustum;
 convar_t	*r_traceglow;
 convar_t	*r_dynamic;
 convar_t	*r_lightmap;
+convar_t	*r_overbright; //magic nipples - overbright
 
 convar_t	*vid_displayfrequency;
 convar_t	*vid_fullscreen;
@@ -1589,7 +1590,7 @@ void GL_InitCommands( void )
 	r_fullbright = Cvar_Get( "r_fullbright", "0", FCVAR_CHEAT, "disable lightmaps, get fullbright for entities" );
 	r_norefresh = Cvar_Get( "r_norefresh", "0", 0, "disable 3D rendering (use with caution)" );
 	r_lighting_extended = Cvar_Get( "r_lighting_extended", "1", FCVAR_ARCHIVE, "allow to get lighting from bmodels too" );
-	r_lighting_modulate = Cvar_Get( "r_lighting_modulate", "0.6", FCVAR_ARCHIVE, "lightstyles modulate scale" );
+	r_lighting_modulate = Cvar_Get( "r_lighting_modulate", "0.45", FCVAR_ARCHIVE, "lightstyles modulate scale" );
 	r_lighting_ambient = Cvar_Get( "r_lighting_ambient", "0.3", FCVAR_ARCHIVE, "map ambient lighting scale" );
 	r_adjust_fov = Cvar_Get( "r_adjust_fov", "1", FCVAR_ARCHIVE, "making FOV adjustment for wide-screens" );
 	r_novis = Cvar_Get( "r_novis", "0", 0, "ignore vis information (perfomance test)" );
@@ -1605,6 +1606,8 @@ void GL_InitCommands( void )
 	r_showtree = Cvar_Get( "r_showtree", "0", FCVAR_ARCHIVE, "build the graph of visible BSP tree" );
 	window_xpos = Cvar_Get( "_window_xpos", "130", FCVAR_RENDERINFO, "window position by horizontal" );
 	window_ypos = Cvar_Get( "_window_ypos", "48", FCVAR_RENDERINFO, "window position by vertical" );
+
+	r_overbright = Cvar_Get("r_overbright", "2", FCVAR_ARCHIVE, "world overbrights"); //magic nipples - overbright
 
 	gl_extensions = Cvar_Get( "gl_allow_extensions", "1", FCVAR_GLCONFIG, "allow gl_extensions" );			
 	gl_wgl_msaa_samples = Cvar_Get( "gl_wgl_msaa_samples", "4", FCVAR_GLCONFIG, "enable multisample anti-aliasing" );

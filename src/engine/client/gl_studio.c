@@ -28,7 +28,7 @@ GNU General Public License for more details.
 #define MAX_LOCALLIGHTS	4
 
 CVAR_DEFINE_AUTO( r_glowshellfreq, "2.2", 0, "glowing shell frequency update" );
-CVAR_DEFINE_AUTO( r_shadows, "0", 0, "cast shadows from models" );
+//CVAR_DEFINE_AUTO( r_shadows, "0", 0, "cast shadows from models" );
 
 static vec3_t hullcolor[8] = 
 {
@@ -110,6 +110,11 @@ convar_t			*r_drawviewmodel;
 convar_t			*cl_righthand = NULL;
 convar_t			*cl_himodels;
 
+convar_t			*r_shadows; //magic nipples - shadows
+convar_t			*r_shadow_height;
+convar_t			*r_shadow_x;
+convar_t			*r_shadow_y;
+
 static r_studio_interface_t	*pStudioDraw;
 static studio_draw_state_t	g_studio;		// global studio state
 
@@ -135,6 +140,11 @@ void R_StudioInit( void )
 	cl_himodels = Cvar_Get( "cl_himodels", "1", FCVAR_ARCHIVE, "draw high-resolution player models in multiplayer" );
 	r_studio_sort_textures = Cvar_Get( "r_studio_sort_textures", "0", FCVAR_ARCHIVE, "change draw order for additive meshes" );
 	r_drawviewmodel = Cvar_Get( "r_drawviewmodel", "1", 0, "draw firstperson weapon model" );
+
+	r_shadows = Cvar_Get("r_shadows", "1", FCVAR_ARCHIVE, "drop shadow"); //magic nipples - shadows
+	r_shadow_height = Cvar_Get("r_shadow_height", "0", FCVAR_ARCHIVE, "shadow height");
+	r_shadow_x = Cvar_Get("r_shadow_x", "0.75", FCVAR_ARCHIVE, "shadow distance x axis");
+	r_shadow_y = Cvar_Get("r_shadow_y", "0", FCVAR_ARCHIVE, "shadow distance y-axis");
 
 	Matrix3x4_LoadIdentity( g_studio.rotationmatrix );
 	Cvar_RegisterVariable( &r_glowshellfreq );
@@ -1911,9 +1921,13 @@ void R_StudioLighting( float *lv, int bone, int flags, vec3_t normal )
 {
 	float 	illum;
 
-	if( FBitSet( flags, STUDIO_NF_FULLBRIGHT ))
+	if (FBitSet(flags, STUDIO_NF_FULLBRIGHT))
 	{
-		*lv = 1.0f;
+		//magic nipples - overbright
+		if ((r_overbright->value > 0))
+			* lv = 0.6f;
+		else
+			*lv = 0.1f;
 		return;
 	}
 
@@ -2888,7 +2902,27 @@ static void R_StudioSetupRenderer( int rendermode )
 	if( rendermode > kRenderTransAdd ) rendermode = 0;
 	g_studio.rendermode = bound( 0, rendermode, kRenderTransAdd );
 
-	pglTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
+	//pglTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
+
+	//magic nipples - overbright
+	if (cl.local.waterlevel >= 3)//magic nipples - disable overbrights underwater. nasty way to fix fog glitch
+	{
+		pglTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	}
+	else if ((r_overbright->value > 0))
+	{
+		pglTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+		pglTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
+		pglTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PREVIOUS_ARB);
+		pglTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_TEXTURE);
+		pglTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2);
+	}
+	else
+	{
+		pglTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1);
+		pglTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	}
+
 	pglDisable( GL_ALPHA_TEST );
 	pglShadeModel( GL_SMOOTH );
 
@@ -2962,9 +2996,14 @@ static void R_StudioDrawPointsShadow( void )
 	if( glState.stencilEnabled )
 		pglEnable( GL_STENCIL_TEST );
 
-	height = g_studio.lightspot[2] + 1.0f;
-	vec_x = -g_studio.lightvec[0] * 8.0f;
-	vec_y = -g_studio.lightvec[1] * 8.0f;
+	//height = g_studio.lightspot[2] + 1.0f;
+	//vec_x = -g_studio.lightvec[0] * 8.0f;
+	//vec_y = -g_studio.lightvec[1] * 8.0f;
+
+	//magic nipples - no more shadows from lightsources because it looks bad
+	height = r_shadow_height->value;
+	vec_y = r_shadow_y->value;
+	vec_x = r_shadow_x->value;
 
 	for( k = 0; k < m_pSubModel->nummesh; k++ )
 	{
@@ -2993,7 +3032,7 @@ static void R_StudioDrawPointsShadow( void )
 				av = g_studio.verts[ptricmds[0]];
 				point[0] = av[0] - (vec_x * ( av[2] - g_studio.lightspot[2] ));
 				point[1] = av[1] - (vec_y * ( av[2] - g_studio.lightspot[2] ));
-				point[2] = g_studio.lightspot[2] + 1.0f;
+				point[2] = g_studio.lightspot[2] + height + 0.15f;
 
 				pglVertex3fv( point );
 			}
@@ -3054,7 +3093,8 @@ static void GL_StudioDrawShadow( void )
 {
 	pglDepthMask( GL_TRUE );
 
-	if( r_shadows.value && g_studio.rendermode != kRenderTransAdd && !FBitSet( RI.currentmodel->flags, STUDIO_AMBIENT_LIGHT ))
+	//magic nipples - shadows | changed r_shadows.value to -> to prevent error
+	if( r_shadows->value && g_studio.rendermode != kRenderTransAdd && !FBitSet( RI.currentmodel->flags, STUDIO_AMBIENT_LIGHT ))
 	{
 		float	color = 1.0 - (tr.blend * 0.5);
 
