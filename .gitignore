@@ -9,6 +9,7 @@
 
 # Ignore these folders
 *.vs
+.vs/
 bin/
 int/
 
