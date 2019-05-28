@@ -2473,6 +2473,20 @@ void CBasePlayer :: UpdatePlayerSound ( void )
 
 void CBasePlayer::PostThink()
 {
+
+	//float preserveZ = pev->velocity.z;
+	Vector copyVel = pev->velocity;
+	copyVel.z = 0;
+
+	if (copyVel.Length() > 320 )
+		copyVel = copyVel.Normalize() * 320;
+
+	pev->velocity.x = copyVel.x;
+	pev->velocity.y = copyVel.y;
+
+	//pev->velocity.z = preserveZ;
+
+
 	if ( g_fGameOver )
 		goto pt_end;         // intermission or finale
 

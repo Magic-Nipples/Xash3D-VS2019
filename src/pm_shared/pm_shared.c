@@ -502,6 +502,8 @@ void PM_UpdateStepSound( void )
 	int	fLadder;
 	int step;
 
+	float stepfreq;
+
 	if ( pmove->flTimeStepSound > 0 )
 		return;
 
@@ -511,6 +513,8 @@ void PM_UpdateStepSound( void )
 	PM_CatagorizeTextureType();
 
 	speed = Length( pmove->velocity );
+
+	stepfreq = 650 - speed; //magic nipples - footstep speed based on velocity
 
 	// determine if we are on a ladder
 	fLadder = ( pmove->movetype == MOVETYPE_FLY );// IsOnLadder();
@@ -564,7 +568,7 @@ void PM_UpdateStepSound( void )
 		{
 			step = STEP_SLOSH;
 			fvol = fWalking ? 0.2 : 0.5;
-			pmove->flTimeStepSound = fWalking ? 400 : 300;		
+			pmove->flTimeStepSound = stepfreq;		
 		}
 		else
 		{
@@ -577,37 +581,37 @@ void PM_UpdateStepSound( void )
 			default:
 			case CHAR_TEX_CONCRETE:						
 				fvol = fWalking ? 0.2 : 0.5;
-				pmove->flTimeStepSound = fWalking ? 400 : 300;
+				pmove->flTimeStepSound = stepfreq;
 				break;
 
 			case CHAR_TEX_METAL:	
 				fvol = fWalking ? 0.2 : 0.5;
-				pmove->flTimeStepSound = fWalking ? 400 : 300;
+				pmove->flTimeStepSound = stepfreq;
 				break;
 
 			case CHAR_TEX_DIRT:	
 				fvol = fWalking ? 0.25 : 0.55;
-				pmove->flTimeStepSound = fWalking ? 400 : 300;
+				pmove->flTimeStepSound = stepfreq;
 				break;
 
 			case CHAR_TEX_VENT:	
 				fvol = fWalking ? 0.4 : 0.7;
-				pmove->flTimeStepSound = fWalking ? 400 : 300;
+				pmove->flTimeStepSound = stepfreq;
 				break;
 
 			case CHAR_TEX_GRATE:
 				fvol = fWalking ? 0.2 : 0.5;
-				pmove->flTimeStepSound = fWalking ? 400 : 300;
+				pmove->flTimeStepSound = stepfreq;
 				break;
 
 			case CHAR_TEX_TILE:	
 				fvol = fWalking ? 0.2 : 0.5;
-				pmove->flTimeStepSound = fWalking ? 400 : 300;
+				pmove->flTimeStepSound = stepfreq;
 				break;
 
 			case CHAR_TEX_SLOSH:
 				fvol = fWalking ? 0.2 : 0.5;
-				pmove->flTimeStepSound = fWalking ? 400 : 300;
+				pmove->flTimeStepSound = stepfreq;
 				break;
 			}
 		}

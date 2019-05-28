@@ -2905,11 +2905,7 @@ static void R_StudioSetupRenderer( int rendermode )
 	//pglTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
 
 	//magic nipples - overbright
-	if (cl.local.waterlevel >= 3)//magic nipples - disable overbrights underwater. nasty way to fix fog glitch
-	{
-		pglTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	}
-	else if ((r_overbright->value > 0))
+	if ((r_overbright->value > 0))
 	{
 		pglTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 		pglTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);

@@ -44,11 +44,7 @@ void CL_RunLightStyles( void )
 	if( !cl.worldmodel ) return;
 
 	//magic nipples - overbright
-	if (cl.local.waterlevel >= 3)
-	{
-		scale = r_lighting_modulate->value;
-	}
-	else if ((r_overbright->value == 1))
+	if ((r_overbright->value == 1))
 		scale = r_lighting_modulate->value / 1.7f;
 	else
 		scale = r_lighting_modulate->value;

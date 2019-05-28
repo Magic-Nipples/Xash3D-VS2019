@@ -1,4 +1,4 @@
-LIBRARY hl
+LIBRARY server
 EXPORTS
 	GiveFnptrsToDll			@1
 SECTIONS
