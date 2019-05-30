@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cl_dll", "src\cl_dll\cl_dll
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "engine", "src\engine\engine.vcxproj", "{AE410680-F4E2-4148-97C2-8D7F2E2DD8C4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hl", "src\dlls\hl.vcxproj", "{AD230D79-4170-4754-87E8-6527A7ABEFAB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "src\dlls\hl.vcxproj", "{AD230D79-4170-4754-87E8-6527A7ABEFAB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "src\game_launch\game.vcxproj", "{826A75D9-832D-4D4E-A0F4-F3BACF11B391}"
 EndProject

@@ -310,6 +310,7 @@ public:
 	
 	float m_flNextChatTime;
 	
+	float m_flTimeDelta;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025

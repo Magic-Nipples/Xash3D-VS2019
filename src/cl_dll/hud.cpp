@@ -314,6 +314,8 @@ void CHud :: Init( void )
 	m_pCvarDraw = CVAR_CREATE( "hud_draw", "1", FCVAR_ARCHIVE );
 	cl_lw = gEngfuncs.pfnGetCvarPointer( "cl_lw" );
 
+	CVAR_CREATE("cl_speedcap", "1", FCVAR_ARCHIVE);
+
 	m_pSpriteList = NULL;
 
 	// Clear any old HUD list

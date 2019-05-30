@@ -1046,6 +1046,12 @@ void PM_WalkMove ()
 	// Copy movement amounts
 	fmove = pmove->cmd.forwardmove;
 	smove = pmove->cmd.sidemove;
+
+	if (pmove->cmd.buttons & IN_RUN) //magic nipples - moved walking speed adjust here
+	{
+		fmove *= 0.333;
+		smove *= 0.333;
+	}
 	
 	// Zero out z components of movement vectors
 	pmove->forward[2] = 0;
@@ -2698,7 +2704,7 @@ void PM_CheckFalling( void )
 			PM_PlayStepSound( PM_MapTextureTypeStepType( pmove->chtexturetype ), fvol );
 
 			// Knock the screen around a little bit, temporary effect
-			pmove->punchangle[ 2 ] = pmove->flFallVelocity * 0.013;	// punch z axis
+			pmove->punchangle[ 0 ] = pmove->flFallVelocity * 0.013;	// punch z axis
 
 			if ( pmove->punchangle[ 0 ] > 8 )
 			{

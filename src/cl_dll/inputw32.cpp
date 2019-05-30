@@ -1019,17 +1019,17 @@ void IN_Init (void)
 
 	in_joystick				= gEngfuncs.pfnRegisterVariable ( "joystick","1", FCVAR_ARCHIVE );
 
-	joy_forwardthreshold	= gEngfuncs.pfnRegisterVariable ( "joyforwardthreshold", "0.12", FCVAR_ARCHIVE );
-	joy_forwardsensitivity	= gEngfuncs.pfnRegisterVariable ( "joyforwardsensitivity", "0.25", FCVAR_ARCHIVE );
+	joy_forwardthreshold	= gEngfuncs.pfnRegisterVariable ( "joyforwardthreshold", "0.11", FCVAR_ARCHIVE );
+	joy_forwardsensitivity	= gEngfuncs.pfnRegisterVariable ( "joyforwardsensitivity", "0.5", FCVAR_ARCHIVE );
 
-	joy_sidethreshold		= gEngfuncs.pfnRegisterVariable ( "joysidethreshold", "0.12", FCVAR_ARCHIVE );
-	joy_sidesensitivity		= gEngfuncs.pfnRegisterVariable ( "joysidesensitivity", "0.25", FCVAR_ARCHIVE );
+	joy_sidethreshold		= gEngfuncs.pfnRegisterVariable ( "joysidethreshold", "0.11", FCVAR_ARCHIVE );
+	joy_sidesensitivity		= gEngfuncs.pfnRegisterVariable ( "joysidesensitivity", "0.5", FCVAR_ARCHIVE );
 
-	joy_pitchthreshold		= gEngfuncs.pfnRegisterVariable ( "joypitchthreshold", "0.1", FCVAR_ARCHIVE );
-	joy_pitchsensitivity	= gEngfuncs.pfnRegisterVariable ( "joypitchsensitivity", "0.25", FCVAR_ARCHIVE );
+	joy_pitchthreshold		= gEngfuncs.pfnRegisterVariable ( "joypitchthreshold", "0.11", FCVAR_ARCHIVE );
+	joy_pitchsensitivity	= gEngfuncs.pfnRegisterVariable ( "joypitchsensitivity", "0.5", FCVAR_ARCHIVE );
 
-	joy_yawthreshold		= gEngfuncs.pfnRegisterVariable ( "joyyawthreshold", "0.1", FCVAR_ARCHIVE );
-	joy_yawsensitivity		= gEngfuncs.pfnRegisterVariable ( "joyyawsensitivity", "0.25", FCVAR_ARCHIVE );
+	joy_yawthreshold		= gEngfuncs.pfnRegisterVariable ( "joyyawthreshold", "0.11", FCVAR_ARCHIVE );
+	joy_yawsensitivity		= gEngfuncs.pfnRegisterVariable ( "joyyawsensitivity", "0.5", FCVAR_ARCHIVE );
 
 
 	joy_rstickfix			= gEngfuncs.pfnRegisterVariable ( "joy_rstick_fix", "0.0", FCVAR_ARCHIVE );

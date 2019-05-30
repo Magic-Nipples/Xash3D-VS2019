@@ -412,6 +412,19 @@ void IN_ForwardUp(void)
 	gHUD.m_Spectator.HandleButtonsUp( IN_FORWARD );
 }
 
+//magic nipples - in_speed now activates IN_RUN
+void IN_SpeedDown(void)
+{
+	KeyDown(&in_speed);
+	gHUD.m_Spectator.HandleButtonsDown(IN_RUN);
+}
+
+void IN_SpeedUp(void)
+{
+	KeyUp(&in_speed);
+	gHUD.m_Spectator.HandleButtonsUp(IN_RUN);
+}
+
 void IN_BackDown(void)
 {
 	KeyDown(&in_back);
@@ -450,8 +463,7 @@ void IN_MoverightUp(void)
 	KeyUp(&in_moveright);
 	gHUD.m_Spectator.HandleButtonsUp( IN_MOVERIGHT );
 }
-void IN_SpeedDown(void) {KeyDown(&in_speed);}
-void IN_SpeedUp(void) {KeyUp(&in_speed);}
+
 void IN_StrafeDown(void) {KeyDown(&in_strafe);}
 void IN_StrafeUp(void) {KeyUp(&in_strafe);}
 
@@ -699,12 +711,12 @@ void DLLEXPORT CL_CreateMove ( float frametime, struct usercmd_s *cmd, int activ
 		}	
 
 		// adjust for speed key
-		if ( in_speed.state & 1 )
+		/*if ( in_speed.state & 1 ) //magic nipples - moved to pm_shared to avoid speeding
 		{
 			cmd->forwardmove *= cl_movespeedkey->value;
 			cmd->sidemove *= cl_movespeedkey->value;
 			cmd->upmove *= cl_movespeedkey->value;
-		}
+		}*/
 
 		// clip to maxspeed
 		spd = gEngfuncs.GetClientMaxspeed();
@@ -867,6 +879,11 @@ int CL_ButtonBits( int bResetState )
 		bits |= IN_SCORE;
 	}
 
+	if (in_speed.state & 3) //magic nipples - in_speed now activates IN_RUN
+	{
+		bits |= IN_RUN;
+	}
+
 	// Dead or in intermission? Shore scoreboard, too
 	if ( CL_IsDead() || gHUD.m_iIntermission )
 	{
@@ -889,6 +906,7 @@ int CL_ButtonBits( int bResetState )
 		in_reload.state &= ~2;
 		in_alt1.state &= ~2;
 		in_score.state &= ~2;
+		in_speed.state &= ~2; //magic nipples - in_speed now activates IN_RUN
 	}
 
 	return bits;

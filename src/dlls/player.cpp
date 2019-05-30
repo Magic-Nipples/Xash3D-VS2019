@@ -117,6 +117,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, m_pTank, FIELD_EHANDLE ),
 	DEFINE_FIELD( CBasePlayer, m_iHideHUD, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, m_iFOV, FIELD_INTEGER ),
+
+	DEFINE_FIELD(CBasePlayer, m_flTimeDelta, FIELD_TIME),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -630,7 +632,8 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 		}
 	}
 
-	pev->punchangle.x = -2;
+	if (m_flFallVelocity < PLAYER_MAX_SAFE_FALL_SPEED)
+		pev->punchangle.x = -2;
 
 	if (fTookDamage && !ftrivial && fmajor && flHealthPrev >= 75) 
 	{
@@ -2473,17 +2476,42 @@ void CBasePlayer :: UpdatePlayerSound ( void )
 
 void CBasePlayer::PostThink()
 {
+	float delta = gpGlobals->time - m_flTimeDelta;
+
+	//Clamp delta like the engine does with frametime
+	if (delta > 0.25)
+		delta = 0.25;
 
 	//float preserveZ = pev->velocity.z;
 	Vector copyVel = pev->velocity;
 	copyVel.z = 0;
 
-	if (copyVel.Length() > 320 )
-		copyVel = copyVel.Normalize() * 320;
+	entvars_t* pevGround = VARS(pev->groundentity);
+
+	if (CVAR_GET_FLOAT("cl_speedcap") > 0)
+	{
+		if (pevGround && (pevGround->flags & FL_CONVEYOR))
+		{
+		}
+		else if (FBitSet(pev->flags, FL_ONGROUND))
+		{
+			/*if (pev->button & IN_RUN)
+			{
+				if (copyVel.Length() > (CVAR_GET_FLOAT("sv_maxspeed") * CVAR_GET_FLOAT("cl_movespeedkey")))
+					copyVel = copyVel.Normalize() * (CVAR_GET_FLOAT("sv_maxspeed") * CVAR_GET_FLOAT("cl_movespeedkey"));
+			}*/
+			if (copyVel.Length() > CVAR_GET_FLOAT("sv_maxspeed"))
+				copyVel = copyVel.Normalize() * CVAR_GET_FLOAT("sv_maxspeed");
+		}
+		else
+		{
+			if (copyVel.Length() > CVAR_GET_FLOAT("cl_forwardspeed"))
+				copyVel = copyVel.Normalize() * CVAR_GET_FLOAT("cl_forwardspeed");
+		}
+	}
 
 	pev->velocity.x = copyVel.x;
 	pev->velocity.y = copyVel.y;
-
 	//pev->velocity.z = preserveZ;
 
 
@@ -2539,11 +2567,11 @@ void CBasePlayer::PostThink()
 				EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/bodysplat.wav", 1, ATTN_NORM);
 			}
 
-			if ( flFallDamage > 0 )
+			/*if ( flFallDamage > 0 )
 			{
 				TakeDamage(VARS(eoNullEntity), VARS(eoNullEntity), flFallDamage, DMG_FALL ); 
 				pev->punchangle.x = 0;
-			}
+			}*/
 		}
 
 		if ( IsAlive() )
@@ -2649,6 +2677,8 @@ pt_end:
 #else
 	return;
 #endif
+
+	m_flTimeDelta = gpGlobals->time;
 }
 
 
@@ -2796,6 +2826,7 @@ void CBasePlayer::Spawn( void )
 	m_bitsDamageType	= 0;
 	m_afPhysicsFlags	= 0;
 	m_fLongJump			= FALSE;// no longjump module. 
+	m_flTimeDelta		= -1;
 
 	g_engfuncs.pfnSetPhysicsKeyValue( edict(), "slj", "0" );
 	g_engfuncs.pfnSetPhysicsKeyValue( edict(), "hl", "1" );
