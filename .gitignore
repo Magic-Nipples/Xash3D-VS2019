@@ -36,3 +36,4 @@ int/
 *.exe
 *.out
 *.app
+src/cl_dll/inputw32 -1.cpp
