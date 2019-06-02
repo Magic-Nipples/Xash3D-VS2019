@@ -159,7 +159,6 @@ void DLLEXPORT HUD_DrawNormalTriangles( void )
 //	Draw_Triangles();
 #endif
 
-	//BlackFog(); //solokiller - env_fog
 }
 
 /*
@@ -175,4 +174,8 @@ void DLLEXPORT HUD_DrawTransparentTriangles( void )
 #if defined( TEST_IT )
 //	Draw_Triangles();
 #endif
+
+	//magic nipples - this overrides the colored fog so its disabled for now.
+	//BlackFog(); //solokiller - env_fog
+
 }
