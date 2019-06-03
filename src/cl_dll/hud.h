@@ -572,6 +572,7 @@ public:
 	int		m_iRes;
 	cvar_t  *m_pCvarStealMouse;
 	cvar_t	*m_pCvarDraw;
+	cvar_t	*RainInfo; //magic nipples - rain
 
 	int m_iFontHeight;
 	int DrawHudNumber(int x, int y, int iFlags, int iNumber, int r, int g, int b );
@@ -637,6 +638,7 @@ public:
 	int _cdecl MsgFunc_SetFOV(const char *pszName,  int iSize, void *pbuf);
 	int _cdecl MsgFunc_Concuss( const char *pszName, int iSize, void *pbuf );
 	int _cdecl MsgFunc_SetFog(const char* pszName, int iSize, void* pbuf); //solokiller - env_fog
+	int _cdecl MsgFunc_RainData(const char* pszName, int iSize, void* pbuf); //magic nipples - rain
 
 	// Screen information
 	SCREENINFO	m_scrinfo;

@@ -308,10 +308,20 @@ public:
 	float m_flStatusBarDisappearDelay;
 	char m_SbarString0[ SBAR_STRING_SIZE ];
 	char m_SbarString1[ SBAR_STRING_SIZE ];
-	
 	float m_flNextChatTime;
 	
 	float m_flTimeDelta;
+
+	//magic nipples - rain
+	int		Rain_dripsPerSecond;
+	float	Rain_windX, Rain_windY;
+	float	Rain_randX, Rain_randY;
+	int		Rain_ideal_dripsPerSecond;
+	float	Rain_ideal_windX, Rain_ideal_windY;
+	float	Rain_ideal_randX, Rain_ideal_randY;
+	float	Rain_endFade; // 0 means off
+	float	Rain_nextFadeUpdate;
+	int		Rain_needsUpdate;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025

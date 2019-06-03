@@ -20,8 +20,11 @@
 #include "cl_util.h"
 #include "parsemsg.h"
 #include "r_efx.h"
+#include "rain.h" //magic nipples - rain
 
 #define MAX_CLIENTS 32
+
+extern rain_properties Rain; //magic nipples - rain
 
 //solokiller - env_fog
 vec3_t FogColor;
@@ -138,6 +141,21 @@ int CHud::MsgFunc_SetFog(const char* pszName, int iSize, void* pbuf) //solokille
 	FogColor.z = TransformColor(READ_SHORT());
 	g_iStartDist = READ_SHORT();
 	g_iEndDist = READ_SHORT();
+
+	return 1;
+}
+
+int CHud::MsgFunc_RainData(const char* pszName, int iSize, void* pbuf) //magic nipples - rain
+{
+	BEGIN_READ(pbuf, iSize);
+	Rain.dripsPerSecond = READ_SHORT();
+	Rain.distFromPlayer = READ_COORD();
+	Rain.windX = READ_COORD();
+	Rain.windY = READ_COORD();
+	Rain.randX = READ_COORD();
+	Rain.randY = READ_COORD();
+	Rain.weatherMode = READ_SHORT();
+	Rain.globalHeight = READ_COORD();
 
 	return 1;
 }

@@ -30,6 +30,7 @@
 #include "demo.h"
 #include "demo_api.h"
 #include "vgui_scorepanel.h"
+#include "rain.h" //magic nipples - rain
 
 
 
@@ -127,6 +128,11 @@ int __MsgFunc_GameMode(const char *pszName, int iSize, void *pbuf )
 int __MsgFunc_SetFog(const char* pszName, int iSize, void* pbuf) //solokiller - env_fog
 {
 	return gHUD.MsgFunc_SetFog(pszName, iSize, pbuf);
+}
+
+int __MsgFunc_RainData(const char* pszName, int iSize, void* pbuf) //magic nipples - rain
+{
+	return gHUD.MsgFunc_RainData(pszName, iSize, pbuf);
 }
 
 // TFFree Command Menu
@@ -300,6 +306,7 @@ void CHud :: Init( void )
 	HOOK_MESSAGE( TeamScore );
 	HOOK_MESSAGE( TeamInfo );
 	HOOK_MESSAGE( SetFog ); //solokiller - env_fog
+	HOOK_MESSAGE(RainData); //magic nipples - rain
 
 	HOOK_MESSAGE( Spectator );
 	HOOK_MESSAGE( AllowSpec );
@@ -319,6 +326,7 @@ void CHud :: Init( void )
 	m_pCvarStealMouse = CVAR_CREATE( "hud_capturemouse", "1", FCVAR_ARCHIVE );
 	m_pCvarDraw = CVAR_CREATE( "hud_draw", "1", FCVAR_ARCHIVE );
 	cl_lw = gEngfuncs.pfnGetCvarPointer( "cl_lw" );
+	RainInfo = gEngfuncs.pfnRegisterVariable("cl_raininfo", "0", 0); //magic nipples - rain
 
 	CVAR_CREATE("cl_speedcap", "1", FCVAR_ARCHIVE);
 

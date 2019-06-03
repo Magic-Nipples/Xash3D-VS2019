@@ -22,6 +22,7 @@
 #include "decals.h"
 #include "func_break.h"
 #include "shake.h"
+#include "player.h" //magic nipples - rain
 
 #define	SF_GIBSHOOTER_REPEATABLE	1 // allows a gibshooter to be refired
 
@@ -2399,3 +2400,142 @@ void CClientFog::SetFogAll(const Vector& color, float startDistance, float endDi
 {
 	InternalSetFog(NULL, color, startDistance, endDistance);
 }
+
+//=======================
+// CRainSettings //magic nipples - rain
+//=======================
+void CRainSettings::Spawn()
+{
+	pev->solid = SOLID_NOT;
+	pev->movetype = MOVETYPE_NONE;
+	pev->effects |= EF_NODRAW;
+}
+
+void CRainSettings::KeyValue(KeyValueData* pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "m_flDistance"))
+	{
+		Rain_Distance = atof(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else if (FStrEq(pkvd->szKeyName, "m_iMode"))
+	{
+		Rain_Mode = atoi(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else
+	{
+		CBaseEntity::KeyValue(pkvd);
+	}
+}
+
+LINK_ENTITY_TO_CLASS(rain_settings, CRainSettings);
+
+TYPEDESCRIPTION	CRainSettings::m_SaveData[] =
+{
+	DEFINE_FIELD(CRainSettings, Rain_Distance, FIELD_FLOAT),
+	DEFINE_FIELD(CRainSettings, Rain_Mode, FIELD_INTEGER),
+};
+IMPLEMENT_SAVERESTORE(CRainSettings, CBaseEntity);
+
+//=======================
+// CRainModify //magic nipples - rain
+//=======================
+void CRainModify::Spawn()
+{
+	pev->solid = SOLID_NOT;
+	pev->movetype = MOVETYPE_NONE;
+	pev->effects |= EF_NODRAW;
+
+	if (FStringNull(pev->targetname))
+		pev->spawnflags |= 1;
+}
+
+void CRainModify::KeyValue(KeyValueData* pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "m_iDripsPerSecond"))
+	{
+		Rain_Drips = atoi(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else if (FStrEq(pkvd->szKeyName, "m_flWindX"))
+	{
+		Rain_windX = atof(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else if (FStrEq(pkvd->szKeyName, "m_flWindY"))
+	{
+		Rain_windY = atof(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else if (FStrEq(pkvd->szKeyName, "m_flRandX"))
+	{
+		Rain_randX = atof(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else if (FStrEq(pkvd->szKeyName, "m_flRandY"))
+	{
+		Rain_randY = atof(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else if (FStrEq(pkvd->szKeyName, "m_flTime"))
+	{
+		fadeTime = atof(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else
+	{
+		CBaseEntity::KeyValue(pkvd);
+	}
+}
+
+void CRainModify::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+{
+	if (pev->spawnflags & 1)
+		return; // constant
+
+	if (gpGlobals->deathmatch)
+	{
+		ALERT(at_console, "Rain error: only static rain in multiplayer\n");
+		return; // not in multiplayer
+	}
+
+	CBasePlayer* pPlayer;
+	//pPlayer = (CBasePlayer*)CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(1));
+	pPlayer = (CBasePlayer*)UTIL_PlayerByIndex(1);
+
+	if (fadeTime)
+	{ // write to 'ideal' settings
+		pPlayer->Rain_ideal_dripsPerSecond = Rain_Drips;
+		pPlayer->Rain_ideal_randX = Rain_randX;
+		pPlayer->Rain_ideal_randY = Rain_randY;
+		pPlayer->Rain_ideal_windX = Rain_windX;
+		pPlayer->Rain_ideal_windY = Rain_windY;
+
+		pPlayer->Rain_endFade = gpGlobals->time + fadeTime;
+		pPlayer->Rain_nextFadeUpdate = gpGlobals->time + 1;
+	}
+	else
+	{
+		pPlayer->Rain_dripsPerSecond = Rain_Drips;
+		pPlayer->Rain_randX = Rain_randX;
+		pPlayer->Rain_randY = Rain_randY;
+		pPlayer->Rain_windX = Rain_windX;
+		pPlayer->Rain_windY = Rain_windY;
+
+		pPlayer->Rain_needsUpdate = 1;
+	}
+}
+
+LINK_ENTITY_TO_CLASS(rain_modify, CRainModify);
+
+TYPEDESCRIPTION	CRainModify::m_SaveData[] =
+{
+	DEFINE_FIELD(CRainModify, fadeTime, FIELD_FLOAT),
+	DEFINE_FIELD(CRainModify, Rain_Drips, FIELD_INTEGER),
+	DEFINE_FIELD(CRainModify, Rain_randX, FIELD_FLOAT),
+	DEFINE_FIELD(CRainModify, Rain_randY, FIELD_FLOAT),
+	DEFINE_FIELD(CRainModify, Rain_windX, FIELD_FLOAT),
+	DEFINE_FIELD(CRainModify, Rain_windY, FIELD_FLOAT),
+};
+IMPLEMENT_SAVERESTORE(CRainModify, CBaseEntity);

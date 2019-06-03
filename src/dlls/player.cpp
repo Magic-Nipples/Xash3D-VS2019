@@ -121,6 +121,20 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, m_iFOV, FIELD_INTEGER ),
 
 	DEFINE_FIELD(CBasePlayer, m_flTimeDelta, FIELD_TIME),
+
+	//magic nipples - rain
+	DEFINE_FIELD(CBasePlayer, Rain_dripsPerSecond, FIELD_INTEGER),
+	DEFINE_FIELD(CBasePlayer, Rain_windX, FIELD_FLOAT),
+	DEFINE_FIELD(CBasePlayer, Rain_windY, FIELD_FLOAT),
+	DEFINE_FIELD(CBasePlayer, Rain_randX, FIELD_FLOAT),
+	DEFINE_FIELD(CBasePlayer, Rain_randY, FIELD_FLOAT),
+	DEFINE_FIELD(CBasePlayer, Rain_ideal_dripsPerSecond, FIELD_INTEGER),
+	DEFINE_FIELD(CBasePlayer, Rain_ideal_windX, FIELD_FLOAT),
+	DEFINE_FIELD(CBasePlayer, Rain_ideal_windY, FIELD_FLOAT),
+	DEFINE_FIELD(CBasePlayer, Rain_ideal_randX, FIELD_FLOAT),
+	DEFINE_FIELD(CBasePlayer, Rain_ideal_randY, FIELD_FLOAT),
+	DEFINE_FIELD(CBasePlayer, Rain_endFade, FIELD_TIME),
+	DEFINE_FIELD(CBasePlayer, Rain_nextFadeUpdate, FIELD_TIME),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -190,6 +204,7 @@ int gmsgGeigerRange = 0;
 int gmsgTeamNames = 0;
 
 int gmsgSetFog = 0; //solokiller - env_fog
+int gmsgRainData = 0; //magic nipples - rain
 
 int gmsgStatusText = 0;
 int gmsgStatusValue = 0; 
@@ -239,6 +254,7 @@ void LinkUserMessages( void )
 	gmsgTeamNames = REG_USER_MSG( "TeamNames", -1 );
 
 	gmsgSetFog = REG_USER_MSG("SetFog", -1); //solokiller - env_fog
+	gmsgRainData = REG_USER_MSG("RainData", 16); //magic nipples - rain
 
 	gmsgStatusText = REG_USER_MSG("StatusText", -1);
 	gmsgStatusValue = REG_USER_MSG("StatusValue", 3); 
@@ -2835,6 +2851,20 @@ void CBasePlayer::Spawn( void )
 	m_fLongJump			= FALSE;// no longjump module. 
 	m_flTimeDelta		= -1;
 
+	//magic nipples - rain
+	Rain_dripsPerSecond = 0;
+	Rain_windX = 0;
+	Rain_windY = 0;
+	Rain_randX = 0;
+	Rain_randY = 0;
+	Rain_ideal_dripsPerSecond = 0;
+	Rain_ideal_windX = 0;
+	Rain_ideal_windY = 0;
+	Rain_ideal_randX = 0;
+	Rain_ideal_randY = 0;
+	Rain_endFade = 0;
+	Rain_nextFadeUpdate = 0;
+
 	g_engfuncs.pfnSetPhysicsKeyValue( edict(), "slj", "0" );
 	g_engfuncs.pfnSetPhysicsKeyValue( edict(), "hl", "1" );
 
@@ -4027,6 +4057,118 @@ void CBasePlayer :: UpdateClientData( void )
 		
 		// Clear off non-time-based damage indicators
 		m_bitsDamageType &= DMG_TIMEBASED;
+	}
+
+	// calculate and update rain fading //magic nipples - rain
+	if (Rain_endFade > 0)
+	{
+		if (gpGlobals->time < Rain_endFade)
+		{ // we're in fading process
+			if (Rain_nextFadeUpdate <= gpGlobals->time)
+			{
+				int secondsLeft = Rain_endFade - gpGlobals->time + 1;
+
+				Rain_dripsPerSecond += (Rain_ideal_dripsPerSecond - Rain_dripsPerSecond) / secondsLeft;
+				Rain_windX += (Rain_ideal_windX - Rain_windX) / (float)secondsLeft;
+				Rain_windY += (Rain_ideal_windY - Rain_windY) / (float)secondsLeft;
+				Rain_randX += (Rain_ideal_randX - Rain_randX) / (float)secondsLeft;
+				Rain_randY += (Rain_ideal_randY - Rain_randY) / (float)secondsLeft;
+
+				Rain_nextFadeUpdate = gpGlobals->time + 1; // update once per second
+				Rain_needsUpdate = 1;
+
+				ALERT(at_aiconsole, "Rain fading: curdrips: %i, idealdrips %i\n", Rain_dripsPerSecond, Rain_ideal_dripsPerSecond);
+			}
+		}
+		else
+		{ // finish fading process
+			Rain_nextFadeUpdate = 0;
+			Rain_endFade = 0;
+
+			Rain_dripsPerSecond = Rain_ideal_dripsPerSecond;
+			Rain_windX = Rain_ideal_windX;
+			Rain_windY = Rain_ideal_windY;
+			Rain_randX = Rain_ideal_randX;
+			Rain_randY = Rain_ideal_randY;
+			Rain_needsUpdate = 1;
+
+			ALERT(at_aiconsole, "Rain fading finished at %i drips\n", Rain_dripsPerSecond);
+		}
+	}
+
+	// send rain message //magic nipples - rain
+	if (Rain_needsUpdate)
+	{
+		//search for rain_settings entity
+		edict_t* pFind;
+		pFind = FIND_ENTITY_BY_CLASSNAME(NULL, "rain_settings");
+		if (!FNullEnt(pFind))
+		{
+			// rain allowed on this map
+			CBaseEntity* pEnt = CBaseEntity::Instance(pFind);
+			CRainSettings* pRainSettings = (CRainSettings*)pEnt;
+
+			float raindistance = pRainSettings->Rain_Distance;
+			float rainheight = pRainSettings->pev->origin[2];
+			int rainmode = pRainSettings->Rain_Mode;
+
+			// search for constant rain_modifies
+			pFind = FIND_ENTITY_BY_CLASSNAME(NULL, "rain_modify");
+			while (!FNullEnt(pFind))
+			{
+				if (pFind->v.spawnflags & 1)
+				{
+					// copy settings to player's data and clear fading
+					CBaseEntity* pEnt = CBaseEntity::Instance(pFind);
+					CRainModify* pRainModify = (CRainModify*)pEnt;
+
+					Rain_dripsPerSecond = pRainModify->Rain_Drips;
+					Rain_windX = pRainModify->Rain_windX;
+					Rain_windY = pRainModify->Rain_windY;
+					Rain_randX = pRainModify->Rain_randX;
+					Rain_randY = pRainModify->Rain_randY;
+
+					Rain_endFade = 0;
+					break;
+				}
+				pFind = FIND_ENTITY_BY_CLASSNAME(pFind, "rain_modify");
+			}
+
+			MESSAGE_BEGIN(MSG_ONE, gmsgRainData, NULL, pev);
+			WRITE_SHORT(Rain_dripsPerSecond);
+			WRITE_COORD(raindistance);
+			WRITE_COORD(Rain_windX);
+			WRITE_COORD(Rain_windY);
+			WRITE_COORD(Rain_randX);
+			WRITE_COORD(Rain_randY);
+			WRITE_SHORT(rainmode);
+			WRITE_COORD(rainheight);
+			MESSAGE_END();
+
+			if (Rain_dripsPerSecond)
+				ALERT(at_aiconsole, "Sending enabling rain message\n");
+			else
+				ALERT(at_aiconsole, "Sending disabling rain message\n");
+		}
+		else
+		{ // no rain on this map
+			Rain_dripsPerSecond = 0;
+			Rain_windX = 0;
+			Rain_windY = 0;
+			Rain_randX = 0;
+			Rain_randY = 0;
+			Rain_ideal_dripsPerSecond = 0;
+			Rain_ideal_windX = 0;
+			Rain_ideal_windY = 0;
+			Rain_ideal_randX = 0;
+			Rain_ideal_randY = 0;
+			Rain_endFade = 0;
+			Rain_nextFadeUpdate = 0;
+
+			ALERT(at_aiconsole, "Clearing rain data\n");
+		}
+
+		Rain_needsUpdate = 0;
 	}
 
 	// Update Flashlight
