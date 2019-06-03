@@ -366,7 +366,7 @@ void CHud :: Init( void )
 	GetClientVoiceMgr()->Init(&g_VoiceStatusHelper, (vgui::Panel**)&gViewPort);
 
 	m_Menu.Init();
-	
+	InitRain(); //magic nipples - rain
 	ServersInit();
 
 	MsgFunc_ResetHUD(0, 0, NULL );
@@ -379,6 +379,8 @@ CHud :: ~CHud()
 	delete [] m_rghSprites;
 	delete [] m_rgrcRects;
 	delete [] m_rgszSpriteNames;
+
+	ResetRain(); //magic nipples - rain
 
 	if ( m_pHudList )
 	{
@@ -423,6 +425,8 @@ void CHud :: VidInit( void )
 	
 	m_hsprLogo = 0;	
 	m_hsprCursor = 0;
+
+	ResetRain(); //magic nipples - rain
 
 	if (ScreenWidth < 640)
 		m_iRes = 320;

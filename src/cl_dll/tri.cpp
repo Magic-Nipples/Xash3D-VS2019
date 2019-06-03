@@ -31,7 +31,7 @@ extern vec3_t FogColor;
 //magic nipples - rain
 #include "rain.h"
 #include "com_model.h"
-#define M_PI	3.14159265358979323846
+#include "studio_util.h"
 
 extern engine_studio_api_t IEngineStudio;
 
@@ -43,43 +43,6 @@ extern "C"
 	void DLLEXPORT HUD_DrawTransparentTriangles( void );
 };
 
-
-void AngleMatrix(const vec3_t angles, float(*matrix)[4]) //magic nipples - rain
-{
-	float		angle;
-	float		sr, sp, sy, cr, cp, cy;
-
-	angle = angles[1] * (M_PI * 2 / 360); //YAW
-	sy = sin(angle);
-	cy = cos(angle);
-	angle = angles[0] * (M_PI * 2 / 360); //PITCH
-	sp = sin(angle);
-	cp = cos(angle);
-	angle = angles[2] * (M_PI * 2 / 360); //ROLL
-	sr = sin(angle);
-	cr = cos(angle);
-
-	// matrix = (YAW * PITCH) * ROLL
-	matrix[0][0] = cp * cy;
-	matrix[1][0] = cp * sy;
-	matrix[2][0] = -sp;
-	matrix[0][1] = sr * sp * cy + cr * -sy;
-	matrix[1][1] = sr * sp * sy + cr * cy;
-	matrix[2][1] = sr * cp;
-	matrix[0][2] = (cr * sp * cy + -sr * -sy);
-	matrix[1][2] = (cr * sp * sy + -sr * cy);
-	matrix[2][2] = cr * cp;
-	matrix[0][3] = 0.0;
-	matrix[1][3] = 0.0;
-	matrix[2][3] = 0.0;
-}
-
-void VectorTransform(const vec3_t in1, float in2[3][4], vec3_t out) //magic nipples - rain
-{
-	out[0] = DotProduct(in1, in2[0]) + in2[0][3];
-	out[1] = DotProduct(in1, in2[1]) + in2[1][3];
-	out[2] = DotProduct(in1, in2[2]) + in2[2][3];
-}
 
 void SetPoint(float x, float y, float z, float(*matrix)[4]) //magic nipples - rain
 {
@@ -159,16 +122,6 @@ void Draw_Triangles( void )
 
 #endif
 
-//solokiller - env_fog
-void BlackFog(void)
-{
-	static float fColorBlack[3] = { 0,0,0 };
-	bool bFog = g_iStartDist > 0 && g_iEndDist > 0;
-	if (bFog)
-		gEngfuncs.pTriAPI->Fog(fColorBlack, g_iStartDist, g_iEndDist, bFog);
-	else
-		gEngfuncs.pTriAPI->Fog(g_iFogColor, g_iStartDist, g_iEndDist, bFog);
-}
 
 //solokiller - env_fog
 void RenderFog(void)
@@ -177,11 +130,11 @@ void RenderFog(void)
 	bool bFog = g_iStartDist > 0 && g_iEndDist > 0;
 	if (bFog)
 	{
-		if (IEngineStudio.IsHardware() == 2)
-		{
-			gEngfuncs.pTriAPI->Fog(g_iFogColor, g_iStartDist, g_iEndDist, bFog);
-		}
-		else if (IEngineStudio.IsHardware() == 1)
+		//if (IEngineStudio.IsHardware() == 2)
+		//{
+		//	gEngfuncs.pTriAPI->Fog(g_iFogColor, g_iStartDist, g_iEndDist, bFog);
+		//}
+		//else if (IEngineStudio.IsHardware() == 1)
 		{
 			glEnable(GL_FOG);
 			glFogi(GL_FOG_MODE, GL_LINEAR);
@@ -213,9 +166,9 @@ void DrawRain(void) //magic nipples - rain
 	float visibleHeight = Rain.globalHeight - SNOWFADEDIST;
 
 	if (Rain.weatherMode == 0)
-		hsprTexture = LoadSprite("sprites/hi_rain.spr"); // load rain sprite
+		hsprTexture = LoadSprite("gfx/fx/rain.spr"); // load rain sprite
 	else
-		hsprTexture = LoadSprite("sprites/snowflake.spr"); // load snow sprite
+		hsprTexture = LoadSprite("gfx/fx/snow.spr"); // load snow sprite
 
 	if (!hsprTexture) return;
 
@@ -247,7 +200,7 @@ void DrawRain(void) //magic nipples - rain
 			float shiftY = (Drip->yDelta / DRIPSPEED) * DRIP_SPRITE_HALFHEIGHT;
 
 			// --- draw triangle --------------------------
-			gEngfuncs.pTriAPI->Color4f(1.0, 1.0, 1.0, Drip->alpha);
+			gEngfuncs.pTriAPI->Color4f(Drip->alpha, Drip->alpha, Drip->alpha, 1.0); //gEngfuncs.pTriAPI->Color4f(1.0, 1.0, 1.0, Drip->alpha);
 			gEngfuncs.pTriAPI->Begin(TRI_TRIANGLES);
 
 			gEngfuncs.pTriAPI->TexCoord2f(0, 0);
@@ -285,7 +238,7 @@ void DrawRain(void) //magic nipples - rain
 			float alpha = (Drip->origin[2] <= visibleHeight) ? Drip->alpha : ((Rain.globalHeight - Drip->origin[2]) / (float)SNOWFADEDIST) * Drip->alpha;
 
 			// --- draw quad --------------------------
-			gEngfuncs.pTriAPI->Color4f(1.0, 1.0, 1.0, alpha);
+			gEngfuncs.pTriAPI->Color4f(alpha, alpha, alpha, 1.0); //gEngfuncs.pTriAPI->Color4f(1.0, 1.0, 1.0, alpha);
 			gEngfuncs.pTriAPI->Begin(TRI_QUADS);
 
 			gEngfuncs.pTriAPI->TexCoord2f(0, 0);
@@ -342,8 +295,4 @@ void DLLEXPORT HUD_DrawTransparentTriangles( void )
 #if defined( TEST_IT )
 //	Draw_Triangles();
 #endif
-
-	//magic nipples - this overrides the colored fog so its disabled for now.
-	//BlackFog(); //solokiller - env_fog
-
 }

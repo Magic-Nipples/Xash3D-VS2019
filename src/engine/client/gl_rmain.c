@@ -681,7 +681,7 @@ static void R_CheckFog( void )
 		RI.fogColor[3] = 1.0f;
 		RI.fogCustom = false;
 		RI.fogEnabled = true;
-		RI.fogSkybox = true;
+		RI.fogSkybox = false; //RI.fogSkybox = true;
 		return;
 	}
 
@@ -744,13 +744,13 @@ static void R_CheckFog( void )
 		RI.fogColor[3] = 1.0f;
 		RI.fogCustom = false;
 		RI.fogEnabled = true;
-		RI.fogSkybox = true;
+		RI.fogSkybox = false; //RI.fogSkybox = true;
 	}
 	else
 	{
 		RI.fogCustom = false;
 		RI.fogEnabled = true;
-		RI.fogSkybox = true;
+		RI.fogSkybox = false; //RI.fogSkybox = true;
 	}
 }
 
@@ -769,7 +769,7 @@ static void R_CheckGLFog( void )
 	{
 		// fill the fog color from GL-state machine
 		pglGetFloatv( GL_FOG_COLOR, RI.fogColor );
-		RI.fogSkybox = true;
+		RI.fogSkybox = false; //RI.fogSkybox = true;
 	}
 #endif
 }
