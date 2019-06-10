@@ -205,6 +205,7 @@ int gmsgTeamNames = 0;
 
 int gmsgSetFog = 0; //solokiller - env_fog
 int gmsgRainData = 0; //magic nipples - rain
+int gmsgLensFlare = 0; //magic nipples - lensflare
 
 int gmsgStatusText = 0;
 int gmsgStatusValue = 0; 
@@ -255,6 +256,7 @@ void LinkUserMessages( void )
 
 	gmsgSetFog = REG_USER_MSG("SetFog", -1); //solokiller - env_fog
 	gmsgRainData = REG_USER_MSG("RainData", 16); //magic nipples - rain
+	gmsgLensFlare = REG_USER_MSG("Lensflare", -1); //magic nipples - lensflare
 
 	gmsgStatusText = REG_USER_MSG("StatusText", -1);
 	gmsgStatusValue = REG_USER_MSG("StatusValue", 3); 

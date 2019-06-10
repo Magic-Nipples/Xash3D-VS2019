@@ -85,6 +85,8 @@ void CHud :: MsgFunc_InitHUD( const char *pszName, int iSize, void *pbuf )
 
 	//Probably not a good place to put this.
 	pBeam = pBeam2 = NULL;
+
+	m_Lensflare.SunEnabled = FALSE; //magic nipples - lensflare
 }
 
 

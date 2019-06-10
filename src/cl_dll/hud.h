@@ -189,6 +189,54 @@ private:
 //
 //-----------------------------------------------------
 //
+class CHudLensflare : public CHudBase //magic nipples - lensflare
+{
+public:
+	int Init(void);
+	int VidInit(void);
+	int Draw(float flTime);
+	int MsgFunc_Lensflare(const char* pszName, int iSize, void* pbuf);
+
+	int SunEnabled;
+
+private:
+	int Sunanglex;
+	int Sunangley;
+
+	int Sunadd[5];
+
+	float flPlayerBlend;
+	float flPlayerBlend2;
+	float flPlayerBlend3;
+	float flPlayerBlend4;
+	float flPlayerBlend5;
+	float flPlayerBlend6;
+
+	float Screenmx;
+	float Screenmy;
+
+	float multi[10];
+
+	int scale[10];
+
+	int red[10];
+	int green[10];
+	int blue[10];
+
+	char text[10];
+	float Lensx[10];
+	float Lensy[10];
+
+	float Suncoordx;
+	float Suncoordy;
+
+	float Sundistx;
+	float Sundisty;
+};
+
+//
+//-----------------------------------------------------
+//
 class CHudTrain: public CHudBase
 {
 public:
@@ -618,6 +666,7 @@ public:
 	CHudAmmoSecondary	m_AmmoSecondary;
 	CHudTextMessage m_TextMessage;
 	CHudStatusIcons m_StatusIcons;
+	CHudLensflare	m_Lensflare; //magic nipples - lensflare
 
 	void Init( void );
 	void VidInit( void );

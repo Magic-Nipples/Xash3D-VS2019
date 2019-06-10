@@ -2274,6 +2274,7 @@ void CItemSoda::CanTouch ( CBaseEntity *pOther )
 extern int gmsgSetFog;
 
 const int SF_FOG_STARTON = 1;
+#define SF_FOG_FADING 0x8000
 
 LINK_ENTITY_TO_CLASS(env_fog, CClientFog);
 
@@ -2539,3 +2540,66 @@ TYPEDESCRIPTION	CRainModify::m_SaveData[] =
 	DEFINE_FIELD(CRainModify, Rain_windY, FIELD_FLOAT),
 };
 IMPLEMENT_SAVERESTORE(CRainModify, CBaseEntity);
+
+//=======================
+// Sun Flare effect //magic nipples - lensflare
+//=======================
+extern int gmsgLensFlare;
+
+class CClientFlare : public CBaseEntity
+{
+public:
+	void Spawn(void);
+	void Think(void);
+	void KeyValue(KeyValueData*);
+
+	virtual int    Save(CSave& save);
+	virtual int    Restore(CRestore& restore);
+	static    TYPEDESCRIPTION m_SaveData[];
+
+	int m_iPitch;
+	int m_iRoll;
+};
+
+void CClientFlare::KeyValue(KeyValueData* pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "pitch"))
+	{
+		m_iPitch = atoi(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else if (FStrEq(pkvd->szKeyName, "roll"))
+	{
+		m_iRoll = atoi(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else
+		CBaseEntity::KeyValue(pkvd);
+}
+
+void CClientFlare::Spawn(void)
+{
+	pev->effects |= EF_NODRAW;
+
+	pev->nextthink = gpGlobals->time + 0.1;
+}
+
+void CClientFlare::Think(void)
+{
+	MESSAGE_BEGIN(MSG_ALL, gmsgLensFlare, pev->origin);
+		WRITE_COORD(m_iPitch);
+		WRITE_COORD(m_iRoll);
+		WRITE_BYTE(1);
+	MESSAGE_END();
+
+	pev->nextthink = gpGlobals->time + 0.1;
+}
+
+TYPEDESCRIPTION    CClientFlare::m_SaveData[] =
+{
+	DEFINE_FIELD(CClientFlare, m_iPitch, FIELD_INTEGER),
+	DEFINE_FIELD(CClientFlare, m_iRoll, FIELD_INTEGER),
+};
+IMPLEMENT_SAVERESTORE(CClientFlare, CBaseEntity);
+
+LINK_ENTITY_TO_CLASS(env_sun, CClientFlare);

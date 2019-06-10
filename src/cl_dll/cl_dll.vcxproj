@@ -196,6 +196,7 @@
     <ClCompile Include="input.cpp" />
     <ClCompile Include="inputw32.cpp" />
     <ClCompile Include="in_camera.cpp" />
+    <ClCompile Include="lensflare.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="message.cpp" />
     <ClCompile Include="overview.cpp">
