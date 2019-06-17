@@ -2588,7 +2588,7 @@ void CClientFlare::Think(void)
 {
 	MESSAGE_BEGIN(MSG_ALL, gmsgLensFlare, pev->origin);
 		WRITE_COORD(m_iPitch);
-		WRITE_COORD(m_iRoll);
+		WRITE_COORD(m_iRoll - 180); //magic nipples - subtracting 180 because flare was showing up on opposite side of env_light yaw
 		WRITE_BYTE(1);
 	MESSAGE_END();
 

@@ -468,6 +468,12 @@ qboolean R_Init( void );
 void R_Shutdown( void );
 
 //
+// r_bloom.cpp //magic nipples - new bloom
+//
+void R_InitBloomTextures(void);
+void R_BloomBlend(void);
+
+//
 // renderer exports
 //
 qboolean R_Init( void );
@@ -682,6 +688,15 @@ extern convar_t	*vid_fullscreen;
 extern convar_t	*vid_brightness;
 extern convar_t	*vid_gamma;
 extern convar_t	*vid_mode;
+
+//magic nipples - new bloom
+extern convar_t *r_bloom;				//1
+extern convar_t *r_bloom_alpha;			//0.1
+extern convar_t *r_bloom_diamond_size;	//8
+extern convar_t *r_bloom_intensity;		//1
+extern convar_t *r_bloom_darken;		//4
+extern convar_t *r_bloom_sample_size;	//320
+extern convar_t *r_bloom_fast_sample;	//0
 
 extern convar_t* r_overbright; //magic nipples - overbright
 

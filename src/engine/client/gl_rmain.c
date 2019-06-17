@@ -973,6 +973,8 @@ void R_RenderScene( void )
 
 	R_DrawWaterSurfaces();
 
+	R_InitBloomTextures(); //magic nipples - new bloom
+
 	R_EndGL();
 }
 
@@ -1135,6 +1137,8 @@ void R_RenderFrame( const ref_viewpass_t *rvp )
 
 	tr.realframecount++; // right called after viewmodel events
 	R_RenderScene();
+
+	R_BloomBlend(); //magic nipples - new bloom
 }
 
 /*

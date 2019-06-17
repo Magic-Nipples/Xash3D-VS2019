@@ -130,21 +130,21 @@ int CHudLensflare::Draw(float flTime)
 
 		if( gEngfuncs.PM_PointContents( tr.endpos, null ) == CONTENTS_SKY )
 		{		
-			flPlayerBlend = max( DotProduct( forward, sundir ) - 0.85, 0.0 ) * 6.8;
+			flPlayerBlend = max( DotProduct( forward, sundir ) - 0.75, 0.0 ) * 3.8; //0.85, 0.0 ) * 6.8;
 			if (flPlayerBlend > 1.0 )
 				flPlayerBlend = 1.0;
 
-			flPlayerBlend4 = max( DotProduct( forward, sundir ) - 0.90, 0.0 ) * 6.6;
+			flPlayerBlend4 = max( DotProduct( forward, sundir ) - 0.80, 0.0 ) * 3.6; //0.90, 0.0 ) * 6.6;
 			if (flPlayerBlend4 > 1.0 )
 				flPlayerBlend4 = 1.0;
 
-			flPlayerBlend6 = max( DotProduct( forward, sundir ) - 0.80, 0.0 ) * 6.7;
+			flPlayerBlend6 = max( DotProduct( forward, sundir ) - 0.70, 0.0 ) * 3.7; //0.80, 0.0 ) * 6.7;
 			if (flPlayerBlend6 > 1.0 )
 				flPlayerBlend6 = 1.0;
 
 			flPlayerBlend2 = flPlayerBlend6 * 140.0 ;
 			flPlayerBlend3 = flPlayerBlend * 190.0 ;
-			flPlayerBlend5 = flPlayerBlend4 * 222.0 ;
+			flPlayerBlend5 = flPlayerBlend4 * 222.0 ; //giant glow that isn't the sun
 
 			vec3_t normal,point,origin;
 
@@ -339,11 +339,11 @@ int CHudLensflare::Draw(float flTime)
 			gEngfuncs.pTriAPI->RenderMode(kRenderNormal);
 
 			i++;
-			scale1 = 140;
-			Lensx1 = (Suncoordx + (Sundistx * 1.1));
-			Lensy1 = (Suncoordy + (Sundisty * 1.1));
+			scale1 = 130; //140
+			Lensx1 = (Suncoordx + (Sundistx * 1.6)); //1.1 //scale of position relative to player angle against sun angle. higher is farther away from crosshair.
+			Lensy1 = (Suncoordy + (Sundisty * 1.6)); //1.1
 			gEngfuncs.pTriAPI->RenderMode(kRenderTransAdd); //additive
-			gEngfuncs.pTriAPI->SpriteTexture( (struct model_s *) gEngfuncs.GetSpritePointer(text[i]) , 0); //hotglow, or any other sprite for the texture
+			gEngfuncs.pTriAPI->SpriteTexture( (struct model_s *) gEngfuncs.GetSpritePointer(text[i]) , 0); //lens1.spr the one nearest the crosshair
 			gEngfuncs.pTriAPI->CullFace( TRI_NONE ); //no culling
 			gEngfuncs.pTriAPI->Color4f(0.9, 0.9 , 0.9, flPlayerBlend2/255.0);
 			gEngfuncs.pTriAPI->Brightness(flPlayerBlend2/255.0);

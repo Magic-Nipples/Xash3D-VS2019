@@ -27,6 +27,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
+    <UseDebugLibraries>true</UseDebugLibraries>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -169,6 +170,7 @@
     <ClCompile Include="client\gl_alias.c" />
     <ClCompile Include="client\gl_backend.c" />
     <ClCompile Include="client\gl_beams.c" />
+    <ClCompile Include="client\gl_bloom.c" />
     <ClCompile Include="client\gl_cull.c" />
     <ClCompile Include="client\gl_decals.c" />
     <ClCompile Include="client\gl_draw.c" />

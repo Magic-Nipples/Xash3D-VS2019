@@ -71,6 +71,15 @@ convar_t	*r_dynamic;
 convar_t	*r_lightmap;
 convar_t	*r_overbright; //magic nipples - overbright
 
+//magic nipples - new bloom
+convar_t	*r_bloom;				//1
+convar_t	*r_bloom_alpha;			//0.1
+convar_t	*r_bloom_diamond_size;	//8
+convar_t	*r_bloom_intensity;		//1
+convar_t	*r_bloom_darken;		//4
+convar_t	*r_bloom_sample_size;	//320
+convar_t	*r_bloom_fast_sample;	//0
+
 convar_t	*vid_displayfrequency;
 convar_t	*vid_fullscreen;
 convar_t	*vid_brightness;
@@ -1604,10 +1613,18 @@ void GL_InitCommands( void )
 	r_drawentities = Cvar_Get( "r_drawentities", "1", FCVAR_CHEAT|FCVAR_ARCHIVE, "render entities" );
 	r_decals = Cvar_Get( "r_decals", "4096", FCVAR_ARCHIVE, "sets the maximum number of decals" );
 	r_showtree = Cvar_Get( "r_showtree", "0", FCVAR_ARCHIVE, "build the graph of visible BSP tree" );
+	r_overbright = Cvar_Get("r_overbright", "2", FCVAR_ARCHIVE, "world overbrights"); //magic nipples - overbright
+	//magic nipples - new bloom
+	r_bloom = Cvar_Get("r_bloom", "1", FCVAR_ARCHIVE, "");
+	r_bloom_alpha = Cvar_Get("r_bloom_alpha", "0.1", FCVAR_ARCHIVE, "");
+	r_bloom_diamond_size = Cvar_Get("r_bloom_diamond_size", "8", FCVAR_ARCHIVE, "");
+	r_bloom_intensity = Cvar_Get("r_bloom_intensity", "1", FCVAR_ARCHIVE, "");
+	r_bloom_darken = Cvar_Get("r_bloom_darken", "4", FCVAR_ARCHIVE, "");
+	r_bloom_sample_size = Cvar_Get("r_bloom_sample_size", "320", FCVAR_ARCHIVE, "");
+	r_bloom_fast_sample = Cvar_Get("r_bloom_fast_sample", "0", FCVAR_ARCHIVE, "");
+
 	window_xpos = Cvar_Get( "_window_xpos", "130", FCVAR_RENDERINFO, "window position by horizontal" );
 	window_ypos = Cvar_Get( "_window_ypos", "48", FCVAR_RENDERINFO, "window position by vertical" );
-
-	r_overbright = Cvar_Get("r_overbright", "2", FCVAR_ARCHIVE, "world overbrights"); //magic nipples - overbright
 
 	gl_extensions = Cvar_Get( "gl_allow_extensions", "1", FCVAR_GLCONFIG, "allow gl_extensions" );			
 	gl_wgl_msaa_samples = Cvar_Get( "gl_wgl_msaa_samples", "4", FCVAR_GLCONFIG, "enable multisample anti-aliasing" );

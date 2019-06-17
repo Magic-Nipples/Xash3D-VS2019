@@ -130,20 +130,13 @@ void RenderFog(void)
 	bool bFog = g_iStartDist > 0 && g_iEndDist > 0;
 	if (bFog)
 	{
-		//if (IEngineStudio.IsHardware() == 2)
-		//{
-		//	gEngfuncs.pTriAPI->Fog(g_iFogColor, g_iStartDist, g_iEndDist, bFog);
-		//}
-		//else if (IEngineStudio.IsHardware() == 1)
-		{
-			glEnable(GL_FOG);
-			glFogi(GL_FOG_MODE, GL_LINEAR);
-			glFogfv(GL_FOG_COLOR, g_iFogColor);
-			glFogf(GL_FOG_DENSITY, 1.0f);
-			glHint(GL_FOG_HINT, GL_NICEST); //GL_DONT_CARE
-			glFogf(GL_FOG_START, g_iStartDist);
-			glFogf(GL_FOG_END, g_iEndDist);
-		}
+		glEnable(GL_FOG);
+		glFogi(GL_FOG_MODE, GL_LINEAR);
+		glFogfv(GL_FOG_COLOR, g_iFogColor);
+		glFogf(GL_FOG_DENSITY, 1.0f);
+		glHint(GL_FOG_HINT, GL_NICEST); //GL_DONT_CARE
+		glFogf(GL_FOG_START, g_iStartDist);
+		glFogf(GL_FOG_END, g_iEndDist);
 	}
 }
 

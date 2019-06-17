@@ -108,6 +108,10 @@ cvar_t	*cl_chasedist;
 cvar_t *cl_rollspeed;
 cvar_t *cl_rollangle;
 
+//magic nipples - weapon lag
+cvar_t* cl_weaponlag_amount;
+cvar_t* cl_weaponlag_speed;
+
 // These cvars are not registered (so users can't cheat), so set the ->value field directly
 // Register these cvars in V_Init() if needed for easy tweaking
 cvar_t	v_iyaw_cycle		= {"v_iyaw_cycle", "2", 0, 2};
@@ -383,6 +387,50 @@ void V_CalcGunAngle ( struct ref_params_s *pparams )
 	VectorCopy( viewent->angles, viewent->latched.prevangles );
 }
 
+//==========================
+// V_CalcViewModelLag //Magic Nipples - weapon lag
+//==========================
+void V_CalcViewModelLag(ref_params_t* pparams, vec3_t& origin, vec3_t& angles, vec3_t original_angles)
+{
+	static vec3_t m_vecLastFacing;
+	vec3_t vOriginalOrigin = origin;
+	vec3_t vOriginalAngles = angles;
+
+	if (CVAR_GET_FLOAT("cl_weaponlag_amount") <= 0)
+		return;
+
+	// Calculate our drift
+	vec3_t    forward, right, up;
+	AngleVectors(angles, forward, right, up);
+
+	//if ( pparams->frametime != 0.0f )// not in paused
+	Vector vDifference;
+
+	vDifference = forward - m_vecLastFacing;
+
+	float flSpeed = CVAR_GET_FLOAT("cl_weaponlag_speed");
+
+	// If we start to lag too far behind, we'll increase the "catch up" speed.
+	// Solves the problem with fast cl_yawspeed, m_yaw or joysticks rotating quickly.
+	// The old code would slam lastfacing with origin causing the viewmodel to pop to a new position
+	float flDiff = vDifference.Length();
+	if ((flDiff > CVAR_GET_FLOAT("cl_weaponlag_amount")) && (CVAR_GET_FLOAT("cl_weaponlag_amount") > 0.0f))
+	{
+		float flScale = flDiff / CVAR_GET_FLOAT("cl_weaponlag_amount");
+		flSpeed *= flScale;
+	}
+
+	// FIXME:  Needs to be predictable?
+	m_vecLastFacing = m_vecLastFacing + vDifference * (flSpeed * pparams->frametime);
+	// Make sure it doesn't grow out of control!!!
+	m_vecLastFacing = m_vecLastFacing.Normalize();
+
+	//origin = origin + (vDifference * -1.0f) * 5.0f;
+	origin.x = origin.x + (vDifference.x * -1.0f) * 5.0f;
+	origin.y = origin.y + (vDifference.y * -1.0f) * 5.0f;
+	origin.z = origin.z + (vDifference.z * 1.0f) * 5.0f;
+}
+
 /*
 ==============
 V_AddIdle
@@ -528,6 +576,8 @@ void V_CalcNormalRefdef ( struct ref_params_s *pparams )
 
 	VectorCopy ( pparams->cl_viewangles, pparams->viewangles );
 
+	Vector lastAngles = view->angles; //Magic Nipples - weapon lag
+
 	gEngfuncs.V_CalcShake();
 	gEngfuncs.V_ApplyShake( pparams->vieworg, pparams->viewangles, 1.0 );
 
@@ -669,6 +719,8 @@ void V_CalcNormalRefdef ( struct ref_params_s *pparams )
 	// gun a very nice 'shifting' effect when the player looks up/down. If there is a problem
 	// with view model distortion, this may be a cause. (SJB). 
 	view->origin[2] -= 1;
+
+	V_CalcViewModelLag(pparams, view->origin, view->angles, lastAngles); //Magic Nipples - weapon lag
 
 	// fudge position around to keep amount of weapon visible
 	// roughly equal with different FOV
@@ -1693,6 +1745,9 @@ void V_Init (void)
 
 	cl_rollspeed		= gEngfuncs.pfnRegisterVariable("cl_rollspeed", "325", FCVAR_CLIENTDLL | FCVAR_ARCHIVE);
 	cl_rollangle		= gEngfuncs.pfnRegisterVariable("cl_rollangle", "0.6", FCVAR_CLIENTDLL | FCVAR_ARCHIVE);
+
+	cl_weaponlag_amount = gEngfuncs.pfnRegisterVariable("cl_weaponlag_amount", "0.8", FCVAR_CLIENTDLL | FCVAR_ARCHIVE); //Magic Nipples - weapon lag
+	cl_weaponlag_speed = gEngfuncs.pfnRegisterVariable("cl_weaponlag_speed", "6", FCVAR_CLIENTDLL | FCVAR_ARCHIVE); //Magic Nipples - weapon lag
 }
 
 
