@@ -80,6 +80,10 @@ convar_t	*r_bloom_darken;		//4
 convar_t	*r_bloom_sample_size;	//320
 convar_t	*r_bloom_fast_sample;	//0
 
+//magic nipples - down sampling
+convar_t	*r_downsample;
+convar_t	*r_downsample_size;
+
 convar_t	*vid_displayfrequency;
 convar_t	*vid_fullscreen;
 convar_t	*vid_brightness;
@@ -1622,6 +1626,9 @@ void GL_InitCommands( void )
 	r_bloom_darken = Cvar_Get("r_bloom_darken", "4", FCVAR_ARCHIVE, "");
 	r_bloom_sample_size = Cvar_Get("r_bloom_sample_size", "320", FCVAR_ARCHIVE, "");
 	r_bloom_fast_sample = Cvar_Get("r_bloom_fast_sample", "0", FCVAR_ARCHIVE, "");
+	//magic nipples - down sampling
+	r_downsample = Cvar_Get("r_downsample", "0", FCVAR_ARCHIVE, "");
+	r_downsample_size = Cvar_Get("r_downsample_size", "0.5", FCVAR_ARCHIVE, "");
 
 	window_xpos = Cvar_Get( "_window_xpos", "130", FCVAR_RENDERINFO, "window position by horizontal" );
 	window_ypos = Cvar_Get( "_window_ypos", "48", FCVAR_RENDERINFO, "window position by vertical" );

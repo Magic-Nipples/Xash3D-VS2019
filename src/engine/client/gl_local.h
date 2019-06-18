@@ -468,10 +468,16 @@ qboolean R_Init( void );
 void R_Shutdown( void );
 
 //
-// r_bloom.cpp //magic nipples - new bloom
+// gl_bloom.c //magic nipples - new bloom
 //
 void R_InitBloomTextures(void);
 void R_BloomBlend(void);
+
+//
+// gl_downsample.c //magic nipples - down sampling
+//
+void R_InitDownSampleTextures(void);
+void R_DownSampling(void);
 
 //
 // renderer exports
@@ -697,6 +703,10 @@ extern convar_t *r_bloom_intensity;		//1
 extern convar_t *r_bloom_darken;		//4
 extern convar_t *r_bloom_sample_size;	//320
 extern convar_t *r_bloom_fast_sample;	//0
+
+//magic nipples - down sampling
+extern convar_t* r_downsample;
+extern convar_t* r_downsample_size;
 
 extern convar_t* r_overbright; //magic nipples - overbright
 
