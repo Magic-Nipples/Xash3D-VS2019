@@ -199,6 +199,8 @@ public:
 
 	int SunEnabled;
 
+	float SmoothValues(float startValue, float endValue, float finalValue, float speed);
+
 private:
 	int Sunanglex;
 	int Sunangley;
@@ -211,6 +213,20 @@ private:
 	float flPlayerBlend4;
 	float flPlayerBlend5;
 	float flPlayerBlend6;
+
+	float flStartBlend;
+	float flStartBlend2;
+	float flStartBlend3;
+	float flStartBlend4;
+	float flStartBlend5;
+	float flStartBlend6;
+
+	float flFinalBlend;
+	float flFinalBlend2;
+	float flFinalBlend3;
+	float flFinalBlend4;
+	float flFinalBlend5;
+	float flFinalBlend6;
 
 	float Screenmx;
 	float Screenmy;

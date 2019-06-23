@@ -656,8 +656,8 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 		}
 	}
 
-	if (m_flFallVelocity < PLAYER_MAX_SAFE_FALL_SPEED)
-		pev->punchangle.x = -2;
+	//if (m_flFallVelocity < PLAYER_MAX_SAFE_FALL_SPEED)
+		//pev->punchangle.x = -2;
 
 	if (fTookDamage && !ftrivial && fmajor && flHealthPrev >= 75) 
 	{
@@ -2592,11 +2592,11 @@ void CBasePlayer::PostThink()
 				EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/bodysplat.wav", 1, ATTN_NORM);
 			}
 
-			/*if ( flFallDamage > 0 )
+			if ( flFallDamage > 0 )
 			{
 				TakeDamage(VARS(eoNullEntity), VARS(eoNullEntity), flFallDamage, DMG_FALL ); 
-				pev->punchangle.x = 0;
-			}*/
+				//pev->punchangle.x = 0;
+			}
 		}
 
 		if ( IsAlive() )

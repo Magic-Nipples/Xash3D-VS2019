@@ -327,6 +327,7 @@ void CHud :: Init( void )
 	m_pCvarDraw = CVAR_CREATE( "hud_draw", "1", FCVAR_ARCHIVE );
 	cl_lw = gEngfuncs.pfnGetCvarPointer( "cl_lw" );
 	RainInfo = gEngfuncs.pfnRegisterVariable("cl_raininfo", "0", 0); //magic nipples - rain
+	CVAR_CREATE("cl_sunflarespeed", "7", 0);
 
 	CVAR_CREATE("cl_speedcap", "1", FCVAR_ARCHIVE);
 
