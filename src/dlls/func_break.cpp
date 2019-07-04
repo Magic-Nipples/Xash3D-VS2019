@@ -124,6 +124,9 @@ void CBreakable::KeyValue( KeyValueData* pkvd )
 // func_breakable - bmodel that breaks into pieces after taking damage
 //
 LINK_ENTITY_TO_CLASS( func_breakable, CBreakable );
+
+LINK_ENTITY_TO_CLASS( func_mirror, CBreakable );//magic nipples - func_mirror
+
 TYPEDESCRIPTION CBreakable::m_SaveData[] =
 {
 	DEFINE_FIELD( CBreakable, m_Material, FIELD_INTEGER ),
@@ -150,7 +153,11 @@ void CBreakable::Spawn( void )
 	else
 		pev->takedamage	= DAMAGE_YES;
   
-	pev->solid		= SOLID_BSP;
+	if (FBitSet(pev->spawnflags, SF_BREAK_SOLID)) //magic nipples - func_mirror
+		pev->solid = SOLID_NOT;
+	else
+		pev->solid	= SOLID_BSP;
+
     pev->movetype	= MOVETYPE_PUSH;
     m_angle			= pev->angles.y;
 	pev->angles.y	= 0;

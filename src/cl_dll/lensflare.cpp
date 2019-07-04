@@ -93,59 +93,59 @@ int CHudLensflare::Draw(float flTime)
 			sunangles.y = 0;
 		}
 
-		text[0] = SPR_Load("sprites/lens/lens1.spr");
+		text[0] = SPR_Load("gfx/fx/lens/lens1.spr");
 		red[0] = green[0] = blue[0] = 1.0;
 		scale[0] = 45;
 		multi[0] = -0.45;
 
-		text[1] = SPR_Load("sprites/lens/lens2.spr");
+		text[1] = SPR_Load("gfx/fx/lens/lens2.spr");
 		red[1] = green[0] = blue[0] = 1.0;
 		scale[1] = 25;
 		multi[1] = 0.2;
 
-		text[2] = SPR_Load("sprites/lens/glow1.spr");
+		text[2] = SPR_Load("gfx/fx/lens/glow1.spr");
 		red[2] = 132 / 255;
 		green[2] = 1.0;
 		blue[2] = 153 / 255;
 		scale[2] = 35;
 		multi[2] = 0.3;
 
-		text[3] = SPR_Load("sprites/lens/glow2.spr");
+		text[3] = SPR_Load("gfx/fx/lens/glow2.spr");
 		red[3] = 1.0;
 		green[3] = 164 / 255;
 		blue[3] = 164 / 255;
 		scale[3] = 40;
 		multi[3] = 0.46;
 
-		text[4] = SPR_Load("sprites/lens/lens3.spr");
+		text[4] = SPR_Load("gfx/fx/lens/lens3.spr");
 		red[4] = 1.0;
 		green[4] = 164 / 255;
 		blue[4] = 164 / 255;
 		scale[4] = 52;
 		multi[4] = 0.5;
 
-		text[5] = SPR_Load("sprites/lens/lens2.spr");
+		text[5] = SPR_Load("gfx/fx/lens/lens2.spr");
 		red[5] = green[5] = blue[5] = 1.0;
 		scale[5] = 31;
 		multi[5] = 0.54;
 
-		text[6] = SPR_Load("sprites/lens/lens2.spr");
+		text[6] = SPR_Load("gfx/fx/lens/lens2.spr");
 		red[6] = 0.6;
 		green[6] = 1.0;
 		blue[6] = 0.6;
 		scale[6] = 26;
 		multi[6] = 0.64;
 
-		text[7] = SPR_Load("sprites/lens/glow1.spr");
+		text[7] = SPR_Load("gfx/fx/lens/glow1.spr");
 		red[7] = 0.5;
 		green[7] = 1.0;
 		blue[7] = 0.5;
 		scale[7] = 20;
 		multi[7] = 0.77;
 
-		text[8] = SPR_Load("sprites/lens/lens2.spr");
+		text[8] = SPR_Load("gfx/fx/lens/lens2.spr");
 
-		text[9] = SPR_Load("sprites/lens/lens1.spr");
+		text[9] = SPR_Load("gfx/fx/lens/lens1.spr");
 
 		//flPlayerBlend = 0.0;
 		//flPlayerBlend2 = 0.0;
@@ -242,7 +242,7 @@ int CHudLensflare::Draw(float flTime)
 			Sundisty = Screenmy - Suncoordy;
 
 			gEngfuncs.pTriAPI->RenderMode(kRenderTransAdd); //additive
-			gEngfuncs.pTriAPI->SpriteTexture( (struct model_s *) gEngfuncs.GetSpritePointer(SPR_Load("sprites/lens/lensflare2.spr")) , 0);//use hotglow, or any other sprite for the texture
+			gEngfuncs.pTriAPI->SpriteTexture( (struct model_s *) gEngfuncs.GetSpritePointer(SPR_Load("gfx/fx/lens/lensflare2.spr")) , 0);//use hotglow, or any other sprite for the texture
 			gEngfuncs.pTriAPI->CullFace( TRI_NONE ); //no culling
 			gEngfuncs.pTriAPI->Color4f(1.0, 1.0 , 155/255.0, flFinalBlend2/355.0);
 			gEngfuncs.pTriAPI->Brightness(flFinalBlend2/355.0);
@@ -256,7 +256,7 @@ int CHudLensflare::Draw(float flTime)
 
 
 			gEngfuncs.pTriAPI->RenderMode(kRenderTransAdd); //additive
-			gEngfuncs.pTriAPI->SpriteTexture( (struct model_s *) gEngfuncs.GetSpritePointer(SPR_Load("sprites/lens/glow2.spr")) , 0);//use hotglow, or any other sprite for the texture
+			gEngfuncs.pTriAPI->SpriteTexture( (struct model_s *) gEngfuncs.GetSpritePointer(SPR_Load("gfx/fx/lens/glow2.spr")) , 0);//use hotglow, or any other sprite for the texture
 			gEngfuncs.pTriAPI->CullFace( TRI_NONE ); //no culling
 			gEngfuncs.pTriAPI->Color4f(1.0, 1.0 , 1.0, flFinalBlend3/255.0);
 			gEngfuncs.pTriAPI->Brightness(flFinalBlend3/255.0);
@@ -270,7 +270,7 @@ int CHudLensflare::Draw(float flTime)
 
 
 			gEngfuncs.pTriAPI->RenderMode(kRenderTransAdd); //additive
-			gEngfuncs.pTriAPI->SpriteTexture( (struct model_s *) gEngfuncs.GetSpritePointer(SPR_Load("sprites/lens/glow3.spr")) , 0);//use hotglow, or any other sprite for the texture
+			gEngfuncs.pTriAPI->SpriteTexture( (struct model_s *) gEngfuncs.GetSpritePointer(SPR_Load("gfx/fx/lens/glow3.spr")) , 0);//use hotglow, or any other sprite for the texture
 			gEngfuncs.pTriAPI->CullFace( TRI_NONE ); //no culling
 			gEngfuncs.pTriAPI->Color4f(1.0, 1.0 , 1.0, flFinalBlend5/255.0);
 			gEngfuncs.pTriAPI->Brightness(flFinalBlend5/255.0);

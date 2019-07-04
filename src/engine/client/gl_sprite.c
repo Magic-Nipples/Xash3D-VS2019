@@ -210,7 +210,7 @@ void Mod_LoadSpriteModel( model_t *mod, const void *buffer, qboolean *loaded, ui
 		psprite->type = pinhl->type;
 		psprite->texFormat = pinhl->texFormat;
 		psprite->numframes = mod->numframes = pinhl->numframes;
-		psprite->facecull = pinhl->facetype;
+		psprite->facecull = pinhl->facetype; //SPR_CULL_NONE //magic nipples - how sprites cull on the other side.
 		psprite->radius = pinhl->boundingradius;
 		psprite->synctype = pinhl->synctype;
 
@@ -777,6 +777,14 @@ qboolean R_SpriteOccluded( cl_entity_t *e, vec3_t origin, float *pscale )
 	{
 		float	blend;
 		vec3_t	v;
+
+		// don't reflect this entity in mirrors
+		if (e->curstate.effects & EF_NOREFLECT && RI.params & RP_MIRRORVIEW) //Magic Nipples - readding mirrors
+			return true;
+
+		// draw only in mirrors
+		if (e->curstate.effects & EF_REFLECTONLY && !(RI.params & RP_MIRRORVIEW)) //Magic Nipples - readding mirrors
+			return true;
 
 		TriWorldToScreen( origin, v );
 

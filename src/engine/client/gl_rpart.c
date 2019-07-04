@@ -142,10 +142,10 @@ void CL_InitParticles( void )
 	tracerred = Cvar_Get( "tracerred", "0.8", 0, "tracer red component weight ( 0 - 1.0 )" );
 	tracergreen = Cvar_Get( "tracergreen", "0.8", 0, "tracer green component weight ( 0 - 1.0 )" );
 	tracerblue = Cvar_Get( "tracerblue", "0.4", 0, "tracer blue component weight ( 0 - 1.0 )" );
-	traceralpha = Cvar_Get( "traceralpha", "0.5", 0, "tracer alpha amount ( 0 - 1.0 )" );
+	traceralpha = Cvar_Get( "traceralpha", "0.25", 0, "tracer alpha amount ( 0 - 1.0 )" ); //0.5
 	tracerspeed = Cvar_Get( "tracerspeed", "6000", 0, "tracer speed" );
 	tracerlength = Cvar_Get( "tracerlength", "0.8", 0, "tracer length factor" );
-	traceroffset = Cvar_Get( "traceroffset", "30", 0, "tracer starting offset" );
+	traceroffset = Cvar_Get( "traceroffset", "15", 0, "tracer starting offset" ); //30
 }
 
 /*

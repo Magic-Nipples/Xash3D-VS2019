@@ -442,6 +442,8 @@ extern DLL_GLOBAL int			g_Language;
 #define SF_BREAK_PRESSURE		4// can be broken by a player standing on it
 #define SF_BREAK_CROWBAR		256// instant break if hit with crowbar
 
+#define SF_BREAK_SOLID		512// is this entity solid? func_mirrors only! //magic nipples - func_mirror
+
 // func_pushable (it's also func_breakable, so don't collide with those flags)
 #define SF_PUSH_BREAKABLE		128
 

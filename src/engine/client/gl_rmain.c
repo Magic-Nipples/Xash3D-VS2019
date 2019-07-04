@@ -229,6 +229,8 @@ void R_ClearScene( void )
 	tr.draw_list->num_solid_entities = 0;
 	tr.draw_list->num_trans_entities = 0;
 	tr.draw_list->num_beam_entities = 0;
+
+	tr.num_mirror_entities = 0; //Magic Nipples - readding mirrors
 }
 
 /*
@@ -1024,6 +1026,7 @@ void R_BeginFrame( qboolean clearScene )
 
 	if(( gl_clear->value || CL_IsDevOverviewMode( )) && clearScene && cls.state != ca_cinematic )
 	{
+		pglClearColor(0.0f, 0.0f, 0.0f, 0.0f); //magic nipples - make gl_clear color transparent and black
 		pglClear( GL_COLOR_BUFFER_BIT );
 	}
 
@@ -1137,6 +1140,14 @@ void R_RenderFrame( const ref_viewpass_t *rvp )
 		R_RunViewmodelEvents();
 
 	tr.realframecount++; // right called after viewmodel events
+
+	if (gl_allow_mirrors->value) //Magic Nipples - readding mirrors
+	{
+		// render mirrors
+		R_FindMirrors();
+		R_DrawMirrors();
+	}
+
 	R_RenderScene();
 
 	R_BloomBlend(); //magic nipples - new bloom
