@@ -20,7 +20,7 @@
 // CHud handles the message, calculation, and drawing the HUD
 //
 
-
+#define FOG_LIMIT 30000 //LRC - the fogging fog
 #define RGB_YELLOWISH 0x00FFA000 //255,160,0
 #define RGB_REDISH 0x00FF1010 //255,160,0
 #define RGB_GREENISH 0x0000A000 //0,160,0
@@ -32,7 +32,7 @@
 #define DHN_DRAWZERO 1
 #define DHN_2DIGITS  2
 #define DHN_3DIGITS  4
-#define MIN_ALPHA	 100	
+#define MIN_ALPHA	 128//100	
 
 #define		HUDELEM_ACTIVE	1
 
@@ -640,6 +640,8 @@ public:
 
 	int m_iFontHeight;
 	int DrawHudNumber(int x, int y, int iFlags, int iNumber, int r, int g, int b );
+	int DrawHl2HudNumber(int x, int y, int iFlags, int iNumber, int r, int g, int b);
+
 	int DrawHudString(int x, int y, int iMaxX, char *szString, int r, int g, int b );
 	int DrawHudStringReverse( int xpos, int ypos, int iMinX, char *szString, int r, int g, int b );
 	int DrawHudNumberString( int xpos, int ypos, int iMinX, int iNumber, int r, int g, int b );
@@ -702,7 +704,7 @@ public:
 	void _cdecl MsgFunc_ViewMode( const char *pszName, int iSize, void *pbuf );
 	int _cdecl MsgFunc_SetFOV(const char *pszName,  int iSize, void *pbuf);
 	int _cdecl MsgFunc_Concuss( const char *pszName, int iSize, void *pbuf );
-	int _cdecl MsgFunc_SetFog(const char* pszName, int iSize, void* pbuf); //solokiller - env_fog
+	void _cdecl MsgFunc_SetFog(const char* pszName, int iSize, void* pbuf); //LRC - the fogging fog
 	int _cdecl MsgFunc_RainData(const char* pszName, int iSize, void* pbuf); //magic nipples - rain
 
 	// Screen information
@@ -714,6 +716,7 @@ public:
 
 	// sprite indexes
 	int m_HUD_number_0;
+	int hl2_bnumber_0; //hl2 hud
 
 
 	void AddHudElem(CHudBase *p);

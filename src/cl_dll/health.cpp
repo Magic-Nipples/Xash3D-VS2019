@@ -27,6 +27,7 @@
 #include "parsemsg.h"
 #include <string.h>
 
+#include "triangleapi.h"
 
 DECLARE_MESSAGE(m_Health, Health )
 DECLARE_MESSAGE(m_Health, Damage )
@@ -108,7 +109,7 @@ int CHudHealth:: MsgFunc_Health(const char *pszName,  int iSize, void *pbuf )
 	// Only update the fade if we've changed health
 	if (x != m_iHealth)
 	{
-		m_fFade = FADE_TIME;
+		m_fFade = 128;//FADE_TIME;
 		m_iHealth = x;
 	}
 
@@ -178,11 +179,31 @@ int CHudHealth::Draw(float flTime)
 
 	if ( !m_hSprite )
 		m_hSprite = LoadSprite(PAIN_NAME);
+
+	Vector2D offsetpoint;
+	offsetpoint.x = -30;
+	offsetpoint.y = ScreenHeight - 91;
+
+	if (gHUD.m_iWeaponBits & (1 << (WEAPON_SUIT)))
+	{
+		gEngfuncs.pTriAPI->RenderMode(kRenderTransTexture);
+		gEngfuncs.pTriAPI->SpriteTexture((struct model_s*) gEngfuncs.GetSpritePointer(SPR_Load("sprites/health_back.spr")), 0);
+		gEngfuncs.pTriAPI->CullFace(TRI_NONE); //no culling
+		gEngfuncs.pTriAPI->Color4f(0.0, 0.0, 0.0, 1.0);
+		gEngfuncs.pTriAPI->Brightness(1.0);
+		gEngfuncs.pTriAPI->Begin(TRI_QUADS); //start our quad
+		gEngfuncs.pTriAPI->TexCoord2f(0.0f, 1.0f); gEngfuncs.pTriAPI->Vertex3f(offsetpoint.x, offsetpoint.y, 0); //top left
+		gEngfuncs.pTriAPI->TexCoord2f(0.0f, 0.0f); gEngfuncs.pTriAPI->Vertex3f(offsetpoint.x, offsetpoint.y + 96, 0); //bottom left
+		gEngfuncs.pTriAPI->TexCoord2f(1.0f, 0.0f); gEngfuncs.pTriAPI->Vertex3f(offsetpoint.x + 256, offsetpoint.y + 96, 0); //bottom right
+		gEngfuncs.pTriAPI->TexCoord2f(1.0f, 1.0f); gEngfuncs.pTriAPI->Vertex3f(offsetpoint.x + 256, offsetpoint.y, 0); //top right
+		gEngfuncs.pTriAPI->End(); //end our list of vertexes
+		gEngfuncs.pTriAPI->RenderMode(kRenderNormal);
+	}
 	
 	// Has health changed? Flash the health #
 	if (m_fFade)
 	{
-		m_fFade -= (gHUD.m_flTimeDelta * 20);
+		m_fFade -= (gHUD.m_flTimeDelta * 60); //20 speed of fade
 		if (m_fFade <= 0)
 		{
 			a = MIN_ALPHA;
@@ -190,7 +211,6 @@ int CHudHealth::Draw(float flTime)
 		}
 
 		// Fade the health number back to dim
-
 		a = MIN_ALPHA +  (m_fFade/FADE_TIME) * 128;
 
 	}
@@ -207,7 +227,11 @@ int CHudHealth::Draw(float flTime)
 	// Only draw health if we have the suit.
 	if (gHUD.m_iWeaponBits & (1<<(WEAPON_SUIT)))
 	{
-		HealthWidth = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).right - gHUD.GetSpriteRect(gHUD.m_HUD_number_0).left;
+		x = 80;
+		y = ScreenHeight - 68;
+		x = gHUD.DrawHl2HudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, m_iHealth, r, g, b);
+
+		/*HealthWidth = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).right - gHUD.GetSpriteRect(gHUD.m_HUD_number_0).left;
 		int CrossWidth = gHUD.GetSpriteRect(m_HUD_cross).right - gHUD.GetSpriteRect(m_HUD_cross).left;
 
 		y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
@@ -224,7 +248,7 @@ int CHudHealth::Draw(float flTime)
 
 		int iHeight = gHUD.m_iFontHeight;
 		int iWidth = HealthWidth/10;
-		FillRGBA(x, y, iWidth, iHeight, 255, 160, 0, a);
+		FillRGBA(x, y, iWidth, iHeight, 255, 160, 0, a);*/
 	}
 
 	DrawDamage(flTime);

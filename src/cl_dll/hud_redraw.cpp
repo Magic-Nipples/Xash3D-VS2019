@@ -81,6 +81,14 @@ void CHud::Think(void)
 	}
 }
 
+//LRC - the fogging fog
+extern int g_fFadeDuration;
+extern float g_fStartDist;
+
+extern float g_fFinalValue;
+extern float g_iStartValue;
+extern float g_ftargetValue;
+
 // Redraw
 // step through the local data,  placing the appropriate graphics & text as appropriate
 // returns 1 if they've changed, 0 otherwise
@@ -90,6 +98,41 @@ int CHud :: Redraw( float flTime, int intermission )
 	m_flTime = flTime;
 	m_flTimeDelta = (double)m_flTime - m_fOldTime;
 	static float m_flShotTime = 0;
+
+	//LRC the fogging fog | handle fog fading effects. (is this the right place for it?)
+	if (g_fFadeDuration)
+	{
+
+		float absd, d, fadeoutspeed;
+
+		d = g_ftargetValue - g_iStartValue;
+		absd = fabs(d);
+
+		fadeoutspeed = fabs(30000 - absd) * 0.00003;
+
+		if (absd > 0.01f)
+		{
+			if (d > 0)
+				g_fFinalValue = g_iStartValue + (absd * (gHUD.m_flTimeDelta * g_fFadeDuration * fadeoutspeed));
+			else
+				g_fFinalValue = g_iStartValue - (absd * (gHUD.m_flTimeDelta * g_fFadeDuration * 2.0));
+		}
+		else
+		{
+			g_fFinalValue = g_ftargetValue;
+			g_fFadeDuration = 0;
+		}
+		g_iStartValue = g_fFinalValue;
+
+		// cap it
+		//if (g_fEndDist > FOG_LIMIT)				
+		//	g_fEndDist = FOG_LIMIT;
+
+		//if (g_fEndDist < g_iFinalEndDist)		
+		//	g_fEndDist = g_iFinalEndDist;
+
+		//gEngfuncs.Con_Printf("%0.f %0.f %f\n", g_ftargetValue, g_iStartValue, fadeoutspeed);
+	}
 	
 	// Clock was reset, reset delta
 	if ( m_flTimeDelta < 0 )
@@ -320,6 +363,72 @@ int CHud :: DrawHudNumber( int x, int y, int iFlags, int iNumber, int r, int g, 
 	return x;
 }
 
+int CHud::DrawHl2HudNumber(int x, int y, int iFlags, int iNumber, int r, int g, int b)
+{
+	int iWidth = GetSpriteRect(hl2_bnumber_0).right - GetSpriteRect(hl2_bnumber_0).left;
+	int k;
+
+	if (iNumber > 0)
+	{
+		// SPR_Draw 100's
+		if (iNumber >= 100)
+		{
+			k = iNumber / 100;
+			SPR_Set(GetSprite(hl2_bnumber_0), r, g, b);
+			SPR_DrawAdditive(k, x, y, &GetSpriteRect(hl2_bnumber_0));
+			x += iWidth;
+		}
+		else if (iFlags & (DHN_3DIGITS))
+		{
+			//SPR_DrawAdditive( 0, x, y, &rc );
+			x += iWidth;
+		}
+
+		// SPR_Draw 10's
+		if (iNumber >= 10)
+		{
+			k = (iNumber % 100) / 10;
+			SPR_Set(GetSprite(hl2_bnumber_0), r, g, b);
+			SPR_DrawAdditive(k, x, y, &GetSpriteRect(hl2_bnumber_0));
+			x += iWidth;
+		}
+		else if (iFlags & (DHN_3DIGITS | DHN_2DIGITS))
+		{
+			//SPR_DrawAdditive( 0, x, y, &rc );
+			x += iWidth;
+		}
+
+		// SPR_Draw ones
+		k = iNumber % 10;
+		SPR_Set(GetSprite(hl2_bnumber_0), r, g, b);
+		SPR_DrawAdditive(k, x, y, &GetSpriteRect(hl2_bnumber_0));
+		x += iWidth;
+	}
+	else if (iFlags & DHN_DRAWZERO)
+	{
+		SPR_Set(GetSprite(hl2_bnumber_0), r, g, b);
+
+		// SPR_Draw 100's
+		if (iFlags & (DHN_3DIGITS))
+		{
+			//SPR_DrawAdditive( 0, x, y, &rc );
+			x += iWidth;
+		}
+
+		if (iFlags & (DHN_3DIGITS | DHN_2DIGITS))
+		{
+			//SPR_DrawAdditive( 0, x, y, &rc );
+			x += iWidth;
+		}
+
+		// SPR_Draw ones
+
+		SPR_DrawAdditive(0, x, y, &GetSpriteRect(hl2_bnumber_0));
+		x += iWidth;
+	}
+
+	return x;
+}
 
 int CHud::GetNumWidth( int iNumber, int iFlags )
 {

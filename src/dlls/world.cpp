@@ -42,7 +42,6 @@ extern CBaseEntity				*g_pLastSpawn;
 DLL_GLOBAL edict_t				*g_pBodyQueueHead;
 CGlobalState					gGlobalState;
 extern DLL_GLOBAL	int			gDisplayTitle;
-extern DLL_GLOBAL int		gLevelLoaded; //solokiller - env_fog
 
 extern void W_Precache(void);
 
@@ -479,7 +478,6 @@ void CWorld :: Spawn( void )
 
 void CWorld :: Precache( void )
 {
-	gLevelLoaded = TRUE; //solokiller - env_fog
 	g_pLastSpawn = NULL;
 	
 #if 1

@@ -157,11 +157,12 @@ int R_AllocateMirrorTexture( void )
 		r_screen.size = r_screen.width * r_screen.height * 4;
 		r_screen.flags = IMAGE_HAS_COLOR;
 		r_screen.buffer = NULL; // create empty texture for now
-		tr.mirrorTextures[i] = GL_LoadTextureInternal( txName, &r_screen, TF_IMAGE, false );
+		tr.mirrorTextures[i] = GL_LoadTextureInternal( txName, &r_screen, TF_IMAGE );
 		texture = tr.mirrorTextures[i];
 	}
 
 	GL_Bind( GL_TEXTURE0, texture );
+	//pglTexEnvf(GL_TEXTURE_FILTER_CONTROL_EXT, GL_TEXTURE_LOD_BIAS_EXT, gl_texture_lodbias->value);
 	pglCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, RI.viewport[0], RI.viewport[1], RI.viewport[2], RI.viewport[3], 0 );
 
 	return texture;

@@ -449,7 +449,7 @@ void R_SetupSky( const char *skyboxname )
 		else Q_snprintf( sidename, sizeof( sidename ), "%s_%s", loadname, r_skyBoxSuffix[i] );
 
 		if (gl_texture_nearest->value)
-			tr.skyboxTextures[i] = GL_LoadTexture(sidename, NULL, 0, TF_CLAMP | TF_SKY_NEAREST, NULL); //magic nipples - nearest skybox
+			tr.skyboxTextures[i] = GL_LoadTexture(sidename, NULL, 0, TF_CLAMP | TF_SKY_NEAREST); //magic nipples - nearest skybox
 		else
 			tr.skyboxTextures[i] = GL_LoadTexture( sidename, NULL, 0, TF_CLAMP|TF_SKY );
 

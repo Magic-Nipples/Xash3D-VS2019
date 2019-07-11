@@ -7,7 +7,7 @@
 
 // Triangle rendering, if any
 
-//solokiller - env_fog
+//LRC - the fogging fog
 #include <windows.h>
 #include <gl/gl.h>
 
@@ -20,12 +20,11 @@
 #include "cl_entity.h"
 #include "triangleapi.h"
 
-//solokiller - env_fog
+//LRC - the fogging fog
 #include "r_studioint.h"
-extern float g_iFogColor[4];
-extern float g_iStartDist;
-extern float g_iEndDist;
-extern int g_iWaterLevel;
+extern float g_fFogColor[4];
+extern float g_fStartDist;
+extern float g_fFinalValue;
 extern vec3_t FogColor;
 
 //magic nipples - rain
@@ -123,20 +122,19 @@ void Draw_Triangles( void )
 #endif
 
 
-//solokiller - env_fog
-void RenderFog(void)
+//LRC - the fogging fog
+void RenderFog ( void )
 {
-	float g_iFogColor[4] = { FogColor.x, FogColor.y, FogColor.z, 1.0 };
-	bool bFog = g_iStartDist > 0 && g_iEndDist > 0;
+	float g_fFogColor[4] = { FogColor.x, FogColor.y, FogColor.z, 1.0 };
+	bool bFog = g_fStartDist > 0 && g_fFinalValue > 0;
 	if (bFog)
 	{
 		glEnable(GL_FOG);
 		glFogi(GL_FOG_MODE, GL_LINEAR);
-		glFogfv(GL_FOG_COLOR, g_iFogColor);
-		glFogf(GL_FOG_DENSITY, 1.0f);
-		glHint(GL_FOG_HINT, GL_NICEST); //GL_DONT_CARE
-		glFogf(GL_FOG_START, g_iStartDist);
-		glFogf(GL_FOG_END, g_iEndDist);
+		glFogfv(GL_FOG_COLOR, g_fFogColor);
+		glFogf(GL_FOG_START, g_fStartDist);
+		glFogf(GL_FOG_END, g_fFinalValue);
+		glHint(GL_FOG_HINT, GL_NICEST);
 	}
 }
 
@@ -263,8 +261,6 @@ Non-transparent triangles-- add them here
 */
 void DLLEXPORT HUD_DrawNormalTriangles( void )
 {
-	RenderFog(); //solokiller - env_fog
-
 	gHUD.m_Spectator.DrawOverview();
 	
 #if defined( TEST_IT )

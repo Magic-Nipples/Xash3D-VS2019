@@ -216,6 +216,7 @@
     <ClCompile Include="plane.cpp" />
     <ClCompile Include="plats.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="props.cpp" />
     <ClCompile Include="python.cpp" />
     <ClCompile Include="rat.cpp" />
     <ClCompile Include="roach.cpp" />

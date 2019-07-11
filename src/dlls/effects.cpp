@@ -1246,7 +1246,7 @@ void CSprite::AnimateThink( void )
 {
 	Animate( pev->framerate * (gpGlobals->time - m_lastTime) );
 
-	pev->nextthink		= gpGlobals->time + 0.1;
+	pev->nextthink		= gpGlobals->time + 0.01; //was 0.1
 	m_lastTime			= gpGlobals->time;
 }
 
@@ -2268,35 +2268,50 @@ void CItemSoda::CanTouch ( CBaseEntity *pOther )
 	pev->nextthink = gpGlobals->time;
 }
 
-//=======================
-// ClientFog //solokiller - env_fog
-//=======================
+//=========================================================
+// LRC - the fogging fog | env_fog, rewritten by magic nipples
+//=========================================================
+#define SF_FOG_ACTIVE 1
 extern int gmsgSetFog;
 
-const int SF_FOG_STARTON = 1;
-#define SF_FOG_FADING 0x8000
-
-LINK_ENTITY_TO_CLASS(env_fog, CClientFog);
-
-TYPEDESCRIPTION CClientFog::m_SaveData[] =
+class CEnvFog : public CBaseEntity
 {
-	DEFINE_FIELD(CClientFog, m_fActive, FIELD_BOOLEAN),
-	DEFINE_FIELD(CClientFog, m_iStartDist, FIELD_INTEGER),
-	DEFINE_FIELD(CClientFog, m_iEndDist, FIELD_INTEGER),
+public:
+	void Spawn(void);
+	void Precache(void);
+
+	void EXPORT ResumeThink(void);
+	void EXPORT StartThink(void);
+
+	void TurnOn(void);
+	void TurnOff(void);
+
+	void SendData(Vector col, int fFadeTime, int StartDist, int iEndDist);
+	void KeyValue(KeyValueData* pkvd);
+	virtual int		Save(CSave& save);
+	virtual int		Restore(CRestore& restore);
+	static	TYPEDESCRIPTION m_SaveData[];
+	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value);
+
+	int m_iStartDist;
+	int m_iEndDist;
+	float m_iFadeIn;
+	float m_iFadeOut;
 };
 
-IMPLEMENT_SAVERESTORE(CClientFog, CBaseEntity);
-
-CClientFog* CClientFog::FogCreate()
+TYPEDESCRIPTION	CEnvFog::m_SaveData[] =
 {
-	CClientFog* pFog = GetClassPtr((CClientFog*)NULL);
-	pFog->pev->classname = MAKE_STRING("env_fog");
-	pFog->Spawn();
+	DEFINE_FIELD(CEnvFog, m_iStartDist, FIELD_INTEGER),
+	DEFINE_FIELD(CEnvFog, m_iEndDist, FIELD_INTEGER),
+	DEFINE_FIELD(CEnvFog, m_iFadeIn, FIELD_INTEGER),
+	DEFINE_FIELD(CEnvFog, m_iFadeOut, FIELD_INTEGER),
+};
+IMPLEMENT_SAVERESTORE(CEnvFog, CBaseEntity);
 
-	return pFog;
-}
+LINK_ENTITY_TO_CLASS(env_fog, CEnvFog);
 
-void CClientFog::KeyValue(KeyValueData* pkvd)
+
+void CEnvFog::KeyValue(KeyValueData* pkvd)
 {
 	if (FStrEq(pkvd->szKeyName, "startdist"))
 	{
@@ -2308,99 +2323,125 @@ void CClientFog::KeyValue(KeyValueData* pkvd)
 		m_iEndDist = atoi(pkvd->szValue);
 		pkvd->fHandled = TRUE;
 	}
+	else if (FStrEq(pkvd->szKeyName, "fadein"))
+	{
+		m_iFadeIn = atoi(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else if (FStrEq(pkvd->szKeyName, "fadeout"))
+	{
+		m_iFadeOut = atoi(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
 	else
 		CBaseEntity::KeyValue(pkvd);
 }
 
-void CClientFog::Spawn()
+void CEnvFog::Spawn(void)
 {
 	pev->effects |= EF_NODRAW;
 
-	if (FStringNull(pev->targetname))
-		pev->spawnflags |= SF_FOG_STARTON;
+	if (pev->targetname == 0)
+		pev->spawnflags |= SF_FOG_ACTIVE;
 
-	//Delay fog startup to the next frame
-	pev->nextthink = gpGlobals->time + 0.01;
+	if (pev->spawnflags & SF_FOG_ACTIVE)
+	{
+		SetThink(&CEnvFog::StartThink);
+		pev->nextthink = gpGlobals->time + 0.1;
+	}
 
-	SetThink(&CClientFog::FogThink);
+	// things get messed up if we try to draw fog with a startdist
+	// or an enddist of 0, so we don't allow it.
+	if (m_iStartDist == 0) m_iStartDist = 1;
+	if (m_iEndDist == 0) m_iEndDist = 1;
 }
 
-void CClientFog::FogThink()
+void CEnvFog::Precache(void)
 {
-	if (!(pev->spawnflags & SF_FOG_STARTON))
+	if (pev->spawnflags & SF_FOG_ACTIVE)
 	{
-		m_fActive = FALSE;
+		SetThink(&CEnvFog::ResumeThink);
+		pev->nextthink = gpGlobals->time + 0.1;
 	}
-	else
-	{
-		m_fActive = TRUE;
-		EnableForAll();
-	}
+}
 
+void CEnvFog::ResumeThink(void)
+{
+	//ALERT(at_console, "Fog resume %f\n", gpGlobals->time);
+
+	SendData(pev->rendercolor, m_iFadeIn, m_iStartDist, m_iEndDist);
+	pev->nextthink = gpGlobals->time + 0.1;
+}
+
+void CEnvFog::StartThink(void)
+{
+		TurnOn();
+}
+
+void CEnvFog::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+{
+	//ALERT(at_console, "Fog use\n");
+
+	if (ShouldToggle(useType, true))
+	{
+		if (pev->spawnflags & SF_FOG_ACTIVE)
+			TurnOff();
+		else
+			TurnOn();
+	}
+}
+
+void CEnvFog::TurnOn(void)
+{
+	//ALERT(at_console, "Fog turn on %f\n", gpGlobals->time);
+
+	pev->spawnflags |= SF_FOG_ACTIVE;
+
+	if (m_iFadeIn)
+		SendData(pev->rendercolor, m_iFadeIn, m_iStartDist, m_iEndDist);
+	else
+		SendData(pev->rendercolor, 0, m_iStartDist, m_iEndDist);
+
+	pev->nextthink = 0;
 	SetThink(NULL);
 }
 
-void CClientFog::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+void CEnvFog::TurnOff(void)
 {
-	if (!m_fActive)
-	{
-		m_fActive = TRUE;
-		EnableForAll();
-	}
+	//ALERT(at_console, "Fog turnoff\n");
+
+	pev->spawnflags &= ~SF_FOG_ACTIVE;
+
+	if (m_iFadeOut)
+		SendData(pev->rendercolor, m_iFadeOut, m_iStartDist, 30000);
 	else
+		SendData(pev->rendercolor, 0, m_iStartDist, 30000);
+
+	pev->nextthink = 0;
+	SetThink(NULL);
+}
+
+void CEnvFog::SendData(Vector col, int iFadeTime, int iStartDist, int iEndDist)
+{
+	//ALERT(at_console, "Fog send (%d %d %d), %d - %d\n", col.x, col.y, col.z, iStartDist, iEndDist);
+	for (int i = 1; i <= gpGlobals->maxClients; i++)
 	{
-		m_fActive = FALSE;
-		SetFogAll(g_vecZero, 0, 0);
+		CBaseEntity* pPlayer = UTIL_PlayerByIndex(i);
+
+		if (pPlayer)
+		{
+			MESSAGE_BEGIN(MSG_ONE, gmsgSetFog, NULL, pPlayer->pev);
+			WRITE_BYTE(col.x);
+			WRITE_BYTE(col.y);
+			WRITE_BYTE(col.z);
+			WRITE_BYTE(iFadeTime);
+			WRITE_SHORT(iStartDist);
+			WRITE_SHORT(iEndDist);
+			MESSAGE_END();
+		}
 	}
 }
 
-void CClientFog::CheckFogForClient(edict_t* pClient)
-{
-	//TODO: currently only one fog entity can exist in a map
-	//This can be updated to use a fog manager object that keeps track of which fog entity is active to automatically change fog settings
-	CClientFog* pFog = (CClientFog*)UTIL_FindEntityByClassname(NULL, "env_fog");
-
-	if (pFog && pFog->m_fActive == TRUE)
-	{
-		pFog->SetFog(pClient, pFog->pev->rendercolor, pFog->m_iStartDist, pFog->m_iEndDist);
-	}
-	else
-	{
-		SetFog(pClient, g_vecZero, 0, 0);
-	}
-}
-
-void CClientFog::EnableForAll()
-{
-	SetFogAll(pev->rendercolor, m_iStartDist, m_iEndDist);
-}
-
-static void InternalSetFog(edict_t* pClient, const Vector& color, float startDistance, float endDistance)
-{
-	MESSAGE_BEGIN(pClient ? MSG_ONE : MSG_ALL, gmsgSetFog, NULL, pClient);
-	WRITE_SHORT(color.x);
-	WRITE_SHORT(color.y);
-	WRITE_SHORT(color.z);
-	WRITE_SHORT(startDistance);
-	WRITE_SHORT(endDistance);
-	MESSAGE_END();
-}
-
-void CClientFog::SetFog(edict_t* pClient, const Vector& color, float startDistance, float endDistance)
-{
-	if (pClient == NULL)
-	{
-		ALERT(at_error, "CClientFog::SetFog called with NULL client\n");
-		return;
-	}
-
-	InternalSetFog(pClient, color, startDistance, endDistance);
-}
-
-void CClientFog::SetFogAll(const Vector& color, float startDistance, float endDistance)
-{
-	InternalSetFog(NULL, color, startDistance, endDistance);
-}
 
 //=======================
 // CRainSettings //magic nipples - rain
@@ -2451,6 +2492,19 @@ void CRainModify::Spawn()
 	if (FStringNull(pev->targetname))
 		pev->spawnflags |= 1;
 }
+
+TYPEDESCRIPTION	CRainModify::m_SaveData[] =
+{
+	DEFINE_FIELD(CRainModify, fadeTime, FIELD_FLOAT),
+	DEFINE_FIELD(CRainModify, Rain_Drips, FIELD_INTEGER),
+	DEFINE_FIELD(CRainModify, Rain_randX, FIELD_FLOAT),
+	DEFINE_FIELD(CRainModify, Rain_randY, FIELD_FLOAT),
+	DEFINE_FIELD(CRainModify, Rain_windX, FIELD_FLOAT),
+	DEFINE_FIELD(CRainModify, Rain_windY, FIELD_FLOAT),
+};
+IMPLEMENT_SAVERESTORE(CRainModify, CBaseEntity);
+
+LINK_ENTITY_TO_CLASS(rain_modify, CRainModify);
 
 void CRainModify::KeyValue(KeyValueData* pkvd)
 {
@@ -2528,18 +2582,6 @@ void CRainModify::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE us
 	}
 }
 
-LINK_ENTITY_TO_CLASS(rain_modify, CRainModify);
-
-TYPEDESCRIPTION	CRainModify::m_SaveData[] =
-{
-	DEFINE_FIELD(CRainModify, fadeTime, FIELD_FLOAT),
-	DEFINE_FIELD(CRainModify, Rain_Drips, FIELD_INTEGER),
-	DEFINE_FIELD(CRainModify, Rain_randX, FIELD_FLOAT),
-	DEFINE_FIELD(CRainModify, Rain_randY, FIELD_FLOAT),
-	DEFINE_FIELD(CRainModify, Rain_windX, FIELD_FLOAT),
-	DEFINE_FIELD(CRainModify, Rain_windY, FIELD_FLOAT),
-};
-IMPLEMENT_SAVERESTORE(CRainModify, CBaseEntity);
 
 //=======================
 // Sun Flare effect //magic nipples - lensflare
@@ -2603,3 +2645,41 @@ TYPEDESCRIPTION    CClientFlare::m_SaveData[] =
 IMPLEMENT_SAVERESTORE(CClientFlare, CBaseEntity);
 
 LINK_ENTITY_TO_CLASS(env_sun, CClientFlare);
+
+
+class CTestEntity : public CBaseEntity
+{
+public:
+	void Precache(void);
+	void Spawn(void);
+	void Think(void);
+};
+
+LINK_ENTITY_TO_CLASS(env_test, CTestEntity);
+
+void CTestEntity::Spawn(void)
+{
+	//pev->effects |= EF_NODRAW;
+	Precache();
+	SET_MODEL(ENT(pev), "sprites/sunflare.spr");
+
+	pev->rendermode = kRenderTransAdd;
+
+	pev->nextthink = gpGlobals->time + 0.1;
+}
+
+void CTestEntity::Precache(void)
+{
+	PRECACHE_MODEL("sprites/sunflare.spr");
+}
+
+void CTestEntity::Think(void)
+{
+	CBasePlayer* pPlayer;
+	pPlayer = (CBasePlayer*)UTIL_PlayerByIndex(1);
+
+	pev->renderamt = fabs(DotProduct(pPlayer->pev->v_angle, pev->angles) * 0.25);
+
+	ALERT(at_console, "%0f \n", fabs(DotProduct(pPlayer->pev->v_angle, pev->angles) * 0.25) );
+	pev->nextthink = gpGlobals->time + 0.1;
+}

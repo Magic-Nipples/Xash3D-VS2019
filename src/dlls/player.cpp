@@ -44,8 +44,6 @@ extern DLL_GLOBAL	BOOL	g_fDrawLines;
 int gEvilImpulse101;
 extern DLL_GLOBAL int		g_iSkillLevel, gDisplayTitle;
 
-extern DLL_GLOBAL int		gLevelLoaded; //solokiller - env_fog
-
 
 BOOL gInitHUD = TRUE;
 
@@ -203,7 +201,7 @@ int gmsgShowMenu = 0;
 int gmsgGeigerRange = 0;
 int gmsgTeamNames = 0;
 
-int gmsgSetFog = 0; //solokiller - env_fog
+int gmsgSetFog = 0; //LRC - the fogging fog
 int gmsgRainData = 0; //magic nipples - rain
 int gmsgLensFlare = 0; //magic nipples - lensflare
 
@@ -254,7 +252,7 @@ void LinkUserMessages( void )
 	gmsgAmmoX = REG_USER_MSG("AmmoX", 2);
 	gmsgTeamNames = REG_USER_MSG( "TeamNames", -1 );
 
-	gmsgSetFog = REG_USER_MSG("SetFog", -1); //solokiller - env_fog
+	gmsgSetFog = REG_USER_MSG("SetFog", -1); //LRC - the fogging fog
 	gmsgRainData = REG_USER_MSG("RainData", 16); //magic nipples - rain
 	gmsgLensFlare = REG_USER_MSG("Lensflare", -1); //magic nipples - lensflare
 
@@ -912,7 +910,6 @@ void CBasePlayer::Killed( entvars_t *pevAttacker, int iGib )
 	SetAnimation( PLAYER_DIE );
 	
 	m_iRespawnFrames = 0;
-	m_fUpdateFog = TRUE; //solokiller - env_fog
 
 	pev->modelindex = g_ulModelIndexPlayer;    // don't use eyes
 
@@ -2515,8 +2512,9 @@ void CBasePlayer::PostThink()
 
 	if (CVAR_GET_FLOAT("cl_speedcap") > 0)
 	{
-		if (pevGround && (pevGround->flags & FL_CONVEYOR))
+		if (pevGround && ( (pevGround->flags & FL_CONVEYOR) || (pev->flags & FL_ONTRAIN)))
 		{
+			ALERT(at_console, "on train\n");
 		}
 		else if (FBitSet(pev->flags, FL_ONGROUND))
 		{
@@ -3060,9 +3058,6 @@ int CBasePlayer::Restore( CRestore &restore )
 	//			Barring that, we clear it out here instead of using the incorrect restored time value.
 	m_flNextAttack = UTIL_WeaponTimeBase();
 #endif
-
-	//Force the fog to update next frame
-	m_fUpdateFog = TRUE; //solokiller - env_fog
 
 	return status;
 }
@@ -4284,20 +4279,6 @@ void CBasePlayer :: UpdateClientData( void )
 	{
 		UpdateStatusBar();
 		m_flNextSBarUpdateTime = gpGlobals->time + 0.2;
-	}
-
-	//Update fog after respawn (also sets the fog after connect in multiplayer)
-	if (m_fUpdateFog) //solokiller - env_fog
-	{
-		m_fUpdateFog = FALSE;
-		CClientFog::CheckFogForClient(edict());
-	}
-
-	//Enable fog after level load (singleplayer only)
-	if (gLevelLoaded) //solokiller - env_fog
-	{
-		CClientFog::CheckFogForClient(edict());
-		gLevelLoaded = FALSE;
 	}
 }
 

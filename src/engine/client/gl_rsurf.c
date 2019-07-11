@@ -1080,13 +1080,6 @@ void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 			GL_Bind(GL_TEXTURE0, fa->info->mirrortexturenum);
 			is_mirror = true;
 
-			/*pglEnable(GL_BLEND);
-			pglDepthMask(GL_FALSE);
-			pglDisable(GL_ALPHA_TEST);
-			pglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			pglTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-			pglColor4f(1.0f, 1.0f, 1.0f, 0.25f);*/
-
 			// BEGIN WATER STUFF
 			if (fa->flags & SURF_DRAWTURB)
 			{

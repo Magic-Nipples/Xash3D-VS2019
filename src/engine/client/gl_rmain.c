@@ -361,6 +361,37 @@ void R_SetupFrustum( void )
 
 /*
 =============
+R_SetupProjectionMatrix2 //magic nipples - weapon fov
+=============
+*/
+static void R_SetupProjectionMatrix2(float fov_x, float fov_y, matrix4x4 m)
+{
+	GLdouble	xMin, xMax, yMin, yMax, zNear, zFar;
+
+	if (RI.drawOrtho)
+	{
+		ref_overview_t* ov = &clgame.overView;
+		Matrix4x4_CreateOrtho(m, ov->xLeft, ov->xRight, ov->yTop, ov->yBottom, ov->zNear, ov->zFar);
+		//RI.clipFlags = 0;
+		return;
+	}
+
+	RI.farClip = R_GetFarClip();
+
+	zNear = 4.0f;
+	zFar = max(256.0f, RI.farClip);
+
+	yMax = zNear * tan(fov_y * M_PI / 360.0);
+	yMin = -yMax;
+
+	xMax = zNear * tan(fov_x * M_PI / 360.0);
+	xMin = -xMax;
+
+	Matrix4x4_CreateProjection(m, xMax, xMin, yMax, yMin, zNear, zFar);
+}
+
+/*
+=============
 R_SetupProjectionMatrix
 =============
 */

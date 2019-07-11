@@ -125,9 +125,10 @@ int __MsgFunc_GameMode(const char *pszName, int iSize, void *pbuf )
 	return gHUD.MsgFunc_GameMode( pszName, iSize, pbuf );
 }
 
-int __MsgFunc_SetFog(const char* pszName, int iSize, void* pbuf) //solokiller - env_fog
+int __MsgFunc_SetFog(const char* pszName, int iSize, void* pbuf) //LRC - the fogging fog
 {
-	return gHUD.MsgFunc_SetFog(pszName, iSize, pbuf);
+	gHUD.MsgFunc_SetFog(pszName, iSize, pbuf);
+	return 1;
 }
 
 int __MsgFunc_RainData(const char* pszName, int iSize, void* pbuf) //magic nipples - rain
@@ -305,7 +306,7 @@ void CHud :: Init( void )
 	HOOK_MESSAGE( ScoreInfo );
 	HOOK_MESSAGE( TeamScore );
 	HOOK_MESSAGE( TeamInfo );
-	HOOK_MESSAGE( SetFog ); //solokiller - env_fog
+	HOOK_MESSAGE( SetFog ); //LRC - the fogging fog
 	HOOK_MESSAGE(RainData); //magic nipples - rain
 
 	HOOK_MESSAGE( Spectator );
@@ -524,6 +525,8 @@ void CHud :: VidInit( void )
 
 	// assumption: number_1, number_2, etc, are all listed and loaded sequentially
 	m_HUD_number_0 = GetSpriteIndex( "number_0" );
+
+	hl2_bnumber_0 = GetSpriteIndex("bnumbers"); //hl2 hud
 
 	m_iFontHeight = m_rgrcRects[m_HUD_number_0].bottom - m_rgrcRects[m_HUD_number_0].top;
 

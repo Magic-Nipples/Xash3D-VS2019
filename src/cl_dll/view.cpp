@@ -536,6 +536,11 @@ V_CalcRefdef
 
 ==================
 */
+extern void RenderFog(void); //LRC - the fogging fog
+
+float flDelta = 0;
+float flDelta1 = 0;
+float flDelta2 = 0;
 void V_CalcNormalRefdef ( struct ref_params_s *pparams )
 {
 	cl_entity_t		*ent, *view;
@@ -713,6 +718,34 @@ void V_CalcNormalRefdef ( struct ref_params_s *pparams )
 	view->angles[ROLL]  -= bob * 1;
 	view->angles[PITCH] -= bob * 0.3;
 
+	
+	if (pparams->waterlevel > 2)
+	{
+		flDelta += (M_PI / 120) * (pparams->frametime * 35);
+		if (flDelta >= M_PI)
+			flDelta = -flDelta;
+
+		flDelta1 += (M_PI / 120) * (pparams->frametime * 25);
+		if (flDelta1 >= M_PI)
+			flDelta1 = -flDelta1;
+
+		flDelta2 += (M_PI / 120) * (pparams->frametime * 30);
+		if (flDelta2 >= M_PI)
+			flDelta2 = -flDelta2;
+	}
+	else
+	{
+		flDelta /= 1.05;
+		flDelta1 /= 1.05;
+		flDelta2 /= 1.05;
+	}
+
+	//pparams->viewangles[ROLL] += bob * 1.25;
+
+	pparams->viewangles[ROLL] += 6 * sin(flDelta);
+	pparams->viewangles[YAW] += 6 * sin(flDelta1);
+	pparams->viewangles[PITCH] += 6 * sin(flDelta1);
+
 	VectorCopy(view->angles, view->curstate.angles); //Magic Nipples - restore original view bob
 
 	// pushing the view origin down off of the same X/Z plane as the ent's origin will give the
@@ -885,6 +918,8 @@ void V_CalcNormalRefdef ( struct ref_params_s *pparams )
 	lasttime = pparams->time;
 
 	v_origin = pparams->vieworg;
+
+	RenderFog(); //LRC - the fogging fog
 }
 
 void V_SmoothInterpolateAngles( float * startAngle, float * endAngle, float * finalAngle, float degreesPerSec )

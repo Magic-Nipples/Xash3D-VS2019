@@ -236,7 +236,7 @@ public:
 };
 
 LINK_ENTITY_TO_CLASS( cycler_sprite, CCyclerSprite );
-LINK_ENTITY_TO_CLASS( env_model, CCyclerSprite );
+//LINK_ENTITY_TO_CLASS( env_model, CCyclerSprite );
 
 TYPEDESCRIPTION	CCyclerSprite::m_SaveData[] = 
 {

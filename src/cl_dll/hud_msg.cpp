@@ -26,11 +26,13 @@
 
 extern rain_properties Rain; //magic nipples - rain
 
-//solokiller - env_fog
+//LRC - the fogging fog
 vec3_t FogColor;
-float g_iFogColor[3];
-float g_iStartDist;
-float g_iEndDist;
+int g_fFadeDuration; //negative = fading out
+float g_fStartDist;
+float g_fFinalValue;
+float g_ftargetValue;
+float g_iStartValue;
 
 extern BEAM *pBeam;
 extern BEAM *pBeam2;
@@ -57,9 +59,10 @@ int CHud :: MsgFunc_ResetHUD(const char *pszName, int iSize, void *pbuf )
 	// reset concussion effect
 	m_iConcussionEffect = 0;
 
-	//solokiller - env_fog
-	g_iStartDist = 0.0;
-	g_iEndDist = 0.0;
+	//LRC - the fogging fog
+	g_fStartDist = 0;
+	g_fFinalValue = 0;
+	g_iStartValue = 30000;
 
 	return 1;
 }
@@ -134,17 +137,22 @@ int CHud :: MsgFunc_Concuss( const char *pszName, int iSize, void *pbuf )
 	return 1;
 }
 
-int CHud::MsgFunc_SetFog(const char* pszName, int iSize, void* pbuf) //solokiller - env_fog
+void CHud::MsgFunc_SetFog(const char* pszName, int iSize, void* pbuf) //LRC - the fogging fog
 {
-
 	BEGIN_READ(pbuf, iSize);
-	FogColor.x = TransformColor(READ_SHORT());
-	FogColor.y = TransformColor(READ_SHORT());
-	FogColor.z = TransformColor(READ_SHORT());
-	g_iStartDist = READ_SHORT();
-	g_iEndDist = READ_SHORT();
-
-	return 1;
+	FogColor.x = TransformColor(READ_BYTE());
+	FogColor.y = TransformColor(READ_BYTE());
+	FogColor.z = TransformColor(READ_BYTE());
+	g_fFadeDuration = READ_BYTE();
+	g_fStartDist = READ_SHORT();
+	if (g_fFadeDuration > 0)
+	{
+		g_ftargetValue = READ_SHORT();
+	}
+	else //if (g_fFadeDuration <= 0)
+	{
+		g_fFinalValue = g_iStartValue = READ_SHORT();
+	}
 }
 
 int CHud::MsgFunc_RainData(const char* pszName, int iSize, void* pbuf) //magic nipples - rain
