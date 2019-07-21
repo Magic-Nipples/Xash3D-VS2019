@@ -162,7 +162,6 @@ int R_AllocateMirrorTexture( void )
 	}
 
 	GL_Bind( GL_TEXTURE0, texture );
-	//pglTexEnvf(GL_TEXTURE_FILTER_CONTROL_EXT, GL_TEXTURE_LOD_BIAS_EXT, gl_texture_lodbias->value);
 	pglCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, RI.viewport[0], RI.viewport[1], RI.viewport[2], RI.viewport[3], 0 );
 
 	return texture;

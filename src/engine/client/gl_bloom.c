@@ -170,7 +170,7 @@ static void R_Bloom_InitTextures(void)
 	{
 		r_screendownsamplingtexture_size = (int)(BLOOM_SIZE * 2);
 		r_bloomdownsamplingtexture = GL_CreateTexture("*bloomdownsampletexture", r_screendownsamplingtexture_size,
-			r_screendownsamplingtexture_size, NULL, TF_IMAGE);
+		r_screendownsamplingtexture_size, NULL, TF_IMAGE);
 	}
 
 	// init the screen backup texture
@@ -467,6 +467,7 @@ void R_BloomBlend(void)
 
 	screenTex_tcw = ((float)curView_width / (float)screen_texture_width);
 	screenTex_tch = ((float)curView_height / (float)screen_texture_height);
+
 	if (curView_height > curView_width)
 	{
 		sampleText_tcw = ((float)curView_width / (float)curView_height);
@@ -477,6 +478,16 @@ void R_BloomBlend(void)
 		sampleText_tcw = 1.0f;
 		sampleText_tch = ((float)curView_height / (float)curView_width);
 	}
+
+	//magic nipples - certain resolutions don't have clean ratios and it creates black bars to appear so this will prevent it.
+	if ( sampleText_tch != 0.75f &&
+		 sampleText_tch != 0.625f &&
+		 sampleText_tch != 0.8f &&
+		 sampleText_tch != 0.6f &&
+		 sampleText_tch != 0.5625f)
+		sampleText_tch = 0.5f;
+	
+	//Con_Printf("%f %f | %f %f\n", screenTex_tcw, sampleText_tcw, screenTex_tch, sampleText_tch);
 
 	sample_width = (BLOOM_SIZE * sampleText_tcw);
 	sample_height = (BLOOM_SIZE * sampleText_tch);
