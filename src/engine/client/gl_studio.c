@@ -102,19 +102,23 @@ typedef struct
 	vec4_t		lightpos[MAXSTUDIOVERTS][MAX_LOCALLIGHTS];
 	vec3_t		lightbonepos[MAXSTUDIOBONES][MAX_LOCALLIGHTS];
 	float		locallightR2[MAX_LOCALLIGHTS];
+
 } studio_draw_state_t;
 
 // studio-related cvars 
-convar_t			*r_studio_sort_textures;
-convar_t			*r_drawviewmodel;
-convar_t			*cl_righthand = NULL;
-convar_t			*cl_himodels;
-convar_t			*r_viewmodelfov; //magic nipples - weapon fov
+convar_t* r_studio_sort_textures;
+convar_t* r_drawviewmodel;
+convar_t* cl_righthand = NULL;
+convar_t* cl_himodels;
+convar_t* r_viewmodelfov; //magic nipples - weapon fov
 
-convar_t			*r_shadows; //magic nipples - shadows
-convar_t			*r_shadow_height;
-convar_t			*r_shadow_x;
-convar_t			*r_shadow_y;
+convar_t* r_shadows; //magic nipples - shadows
+convar_t* r_shadow_height;
+convar_t* r_shadow_x;
+convar_t* r_shadow_y;
+
+convar_t* r_shade_speed;
+convar_t* r_lighting_interp;
 
 static r_studio_interface_t	*pStudioDraw;
 static studio_draw_state_t	g_studio;		// global studio state
@@ -147,6 +151,10 @@ void R_StudioInit( void )
 	r_shadow_height = Cvar_Get("r_shadow_height", "0", FCVAR_ARCHIVE, "shadow height");
 	r_shadow_x = Cvar_Get("r_shadow_x", "0.75", FCVAR_ARCHIVE, "shadow distance x axis");
 	r_shadow_y = Cvar_Get("r_shadow_y", "0", FCVAR_ARCHIVE, "shadow distance y-axis");
+
+	r_shade_speed = Cvar_Get("r_lightlerp_speed", "0.1", FCVAR_ARCHIVE, "speed of light interpolation on model lighting");
+	r_lighting_interp = Cvar_Get("r_lighting_lerping", "1", FCVAR_ARCHIVE, "lighting interpolation for models");
+
 
 	Matrix3x4_LoadIdentity( g_studio.rotationmatrix );
 	Cvar_RegisterVariable( &r_glowshellfreq );
@@ -1621,6 +1629,29 @@ static int R_StudioCheckBBox( void )
 	return R_StudioComputeBBox( NULL );
 }
 
+float SmoothValues(float startValue, float endValue, float finalValue, float speed)
+{
+	float absd, d;
+
+	d = endValue - startValue;
+	absd = fabs(d);
+
+	if (absd > 0.01f)
+	{
+		if (d > 0)
+			finalValue = startValue + (absd * speed);
+		else
+			finalValue = startValue - (absd * speed);
+	}
+	else
+	{
+		finalValue = endValue;
+	}
+	startValue = finalValue;
+
+	return startValue;
+}
+
 /*
 ===============
 R_StudioDynamicLight
@@ -1781,16 +1812,76 @@ void R_StudioDynamicLight( cl_entity_t *ent, alight_t *plight )
 
 	VectorScale( lightDir, add, lightDir );
 
-	plight->shadelight = VectorLength( lightDir );
-	plight->ambientlight = total - plight->shadelight;
+	if (r_lighting_interp->value <= 0)
+	{
+		plight->shadelight = VectorLength(lightDir);
+		plight->ambientlight = total - plight->shadelight;
+	}
+	else
+	{
+		if (ent->ltTime == 0)
+		{
+			plight->shadelight = VectorLength(lightDir);
+			plight->ambientlight = total - plight->shadelight;
+
+			ent->flStartShade = ent->flFinalShade = VectorLength(lightDir);
+			plight->ambientlight = ent->flFinalAmbient = total - plight->shadelight;
+		}
+		else
+		{
+			ent->flFinalShade = SmoothValues(ent->flStartShade, (float)(VectorLength(lightDir)), ent->flFinalShade, g_studio.frametime + r_shade_speed->value);
+			ent->flStartShade = ent->flFinalShade;
+			plight->shadelight = ent->flFinalShade;
+
+			//ent->flFinalAmbient = SmoothValues(ent->flStartAmbient, (float)(total - plight->shadelight), ent->flFinalAmbient, g_studio.frametime + r_shade_speed->value); //dont like this method
+			ent->flFinalAmbient = SmoothValues(ent->flStartAmbient, (float)(plight->shadelight * 0.2f), ent->flFinalAmbient, g_studio.frametime + r_shade_speed->value);
+			ent->flStartAmbient = ent->flFinalAmbient;
+			plight->ambientlight = ent->flFinalAmbient;
+		}
+	}
+	//plight->shadelight = 0.0; //TESTTEST
+	//plight->ambientlight = 0.0;
 
 	total = Q_max( Q_max( finalLight[0], finalLight[1] ), finalLight[2] );
 
+	if (r_lighting_interp->value >= 1)
+	{
+		ent->flFinalColor[0] = SmoothValues(ent->flStartColor[0], finalLight[0] * (1.0f / total), ent->flFinalColor[0], g_studio.frametime + r_shade_speed->value);
+		ent->flStartColor[0] = ent->flFinalColor[0];
+
+		ent->flFinalColor[1] = SmoothValues(ent->flStartColor[1], finalLight[1] * (1.0f / total), ent->flFinalColor[1], g_studio.frametime + r_shade_speed->value);
+		ent->flStartColor[1] = ent->flFinalColor[1];
+
+		ent->flFinalColor[2] = SmoothValues(ent->flStartColor[2], finalLight[2] * (1.0f / total), ent->flFinalColor[2], g_studio.frametime + r_shade_speed->value);
+		ent->flStartColor[2] = ent->flFinalColor[2];
+	}
+
 	if( total > 0.0f )
 	{
-		plight->color[0] = finalLight[0] * ( 1.0f / total );
-		plight->color[1] = finalLight[1] * ( 1.0f / total );
-		plight->color[2] = finalLight[2] * ( 1.0f / total );
+		if (r_lighting_interp->value <= 0)
+		{
+			plight->color[0] = finalLight[0] * (1.0f / total);
+			plight->color[1] = finalLight[1] * (1.0f / total);
+			plight->color[2] = finalLight[2] * (1.0f / total);
+		}
+		else
+		{
+			if (ent->ltTime == 0)
+			{
+				ent->flStartColor[0] = plight->color[0] = finalLight[0] * (1.0f / total);
+				ent->flStartColor[1] = plight->color[1] = finalLight[1] * (1.0f / total);
+				ent->flStartColor[2] = plight->color[2] = finalLight[2] * (1.0f / total);
+			}
+			else
+			{
+				plight->color[0] = ent->flFinalColor[0];
+				plight->color[1] = ent->flFinalColor[1];
+				plight->color[2] = ent->flFinalColor[2];
+			}
+		}
+		//plight->color[0] = 1; //TESTTEST
+		//plight->color[1] = 1;
+		//plight->color[2] = 1;
 	}
 	else VectorSet( plight->color, 1.0f, 1.0f, 1.0f );
 
@@ -1800,7 +1891,29 @@ void R_StudioDynamicLight( cl_entity_t *ent, alight_t *plight )
 	if( plight->ambientlight + plight->shadelight > 255 )
 		plight->shadelight = 255 - plight->ambientlight;
 
-	VectorNormalize2( lightDir, plight->plightvec );
+	if (r_lighting_interp->value <= 0)
+	{
+		VectorNormalize2(lightDir, plight->plightvec);
+	}
+	else
+	{
+		ent->ltFinalVec[0] = SmoothValues(ent->ltStartVec[0], lightDir[0], ent->ltFinalVec[0], g_studio.frametime + r_shade_speed->value);
+		ent->ltStartVec[0] = ent->ltFinalVec[0];
+
+		ent->ltFinalVec[1] = SmoothValues(ent->ltStartVec[1], lightDir[1], ent->ltFinalVec[1], g_studio.frametime + r_shade_speed->value);
+		ent->ltStartVec[1] = ent->ltFinalVec[1];
+
+		ent->ltFinalVec[2] = SmoothValues(ent->ltStartVec[2], lightDir[2], ent->ltFinalVec[2], g_studio.frametime + r_shade_speed->value);
+		ent->ltStartVec[2] = ent->ltFinalVec[2];
+
+		VectorNormalize2(ent->ltFinalVec, plight->plightvec);
+	}
+	if(ent->ltTime == 0)
+		ent->ltTime = 1;
+
+	if (g_studio.frametime == 0.0)
+		ent->ltTime = 0;
+	//VectorSet( plight->plightvec, 0.0f, 0.0f, -1.0f ); //TESTTEST
 }
 
 /*
@@ -1927,7 +2040,7 @@ void R_StudioLighting( float *lv, int bone, int flags, vec3_t normal )
 	{
 		//magic nipples - overbright
 		if ((r_overbright->value > 0))
-			* lv = 0.6f;
+			*lv = 0.6f;
 		else
 			*lv = 0.1f;
 		return;
@@ -1965,6 +2078,7 @@ void R_StudioLighting( float *lv, int bone, int flags, vec3_t normal )
 			if( lightcos > 0.0f )
 				illum -= g_studio.shadelight * lightcos; 
 		}
+		//g_studio.lightcolor[0] = 255.0; //TESTTEST
 
 		illum = Q_max( illum, 0.0f );
 	}
@@ -2004,6 +2118,9 @@ void R_LightLambert( vec4_t light[MAX_LOCALLIGHTS], vec3_t normal, vec3_t color 
 				if( r2 > 0.0f )
 					light[i][3] = g_studio.locallightR2[i] / ( r2 * sqrt( r2 ));
 				else light[i][3] = 0.0001f;
+
+				if (light[i][3] > 0.025f) //magic nipples - cap elight distance so it doesn't look bad.
+					light[i][3] = 0.025f;
 			}
 
 			localLight[0] = Q_min( g_studio.locallightcolor[i].r * r * light[i][3], 255.0f );
@@ -2333,7 +2450,7 @@ static void R_StudioDrawPoints( void )
 		{
 			R_StudioComputeSkinMatrix( &pvertweight[i], skinMat );
 			Matrix3x4_VectorTransform( skinMat, pstudioverts[i], g_studio.verts[i] );
-			R_LightStrength( pvertbone[i], pstudioverts[i], g_studio.lightpos[i] );
+			//R_LightStrength( pvertbone[i], pstudioverts[i], g_studio.lightpos[i] );
 		}
 
 		for( i = 0; i < m_pSubModel->numnorms; i++ )

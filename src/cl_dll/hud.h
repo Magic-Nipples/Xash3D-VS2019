@@ -706,6 +706,7 @@ public:
 	int _cdecl MsgFunc_Concuss( const char *pszName, int iSize, void *pbuf );
 	void _cdecl MsgFunc_SetFog(const char* pszName, int iSize, void* pbuf); //LRC - the fogging fog
 	int _cdecl MsgFunc_RainData(const char* pszName, int iSize, void* pbuf); //magic nipples - rain
+	int _cdecl MsgFunc_AddELight(const char* pszName, int iSize, void* pbuf); //magic nipples - elights
 
 	// Screen information
 	SCREENINFO	m_scrinfo;

@@ -204,6 +204,7 @@ int gmsgTeamNames = 0;
 int gmsgSetFog = 0; //LRC - the fogging fog
 int gmsgRainData = 0; //magic nipples - rain
 int gmsgLensFlare = 0; //magic nipples - lensflare
+int gmsgAddELight = 0; //magic nipples - elights
 
 int gmsgStatusText = 0;
 int gmsgStatusValue = 0; 
@@ -255,6 +256,7 @@ void LinkUserMessages( void )
 	gmsgSetFog = REG_USER_MSG("SetFog", -1); //LRC - the fogging fog
 	gmsgRainData = REG_USER_MSG("RainData", 16); //magic nipples - rain
 	gmsgLensFlare = REG_USER_MSG("Lensflare", -1); //magic nipples - lensflare
+	gmsgAddELight = REG_USER_MSG("AddELight", -1); //magic nipples - elights
 
 	gmsgStatusText = REG_USER_MSG("StatusText", -1);
 	gmsgStatusValue = REG_USER_MSG("StatusValue", 3); 
@@ -2514,7 +2516,7 @@ void CBasePlayer::PostThink()
 	{
 		if (pevGround && ( (pevGround->flags & FL_CONVEYOR) || (pev->flags & FL_ONTRAIN)))
 		{
-			ALERT(at_console, "on train\n");
+			//ALERT(at_console, "on train\n");
 		}
 		else if (FBitSet(pev->flags, FL_ONGROUND))
 		{

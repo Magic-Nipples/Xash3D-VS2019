@@ -100,6 +100,16 @@ struct cl_entity_s
 	float		syncbase;	// for client-side animations -- used by obsolete alias animation system, remove?
 	int		visframe;	// last frame this entity was found in an active leaf
 	colorVec		cvFloorColor;
+
+	float	flStartShade;
+	float	flFinalShade;
+	float	flStartAmbient;
+	float	flFinalAmbient;
+	vec3_t	flStartColor;
+	vec3_t	flFinalColor;
+	vec3_t	ltStartVec;
+	vec3_t	ltFinalVec;
+	int		ltTime;
 };
 
 #endif//CL_ENTITY_H

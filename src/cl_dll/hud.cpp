@@ -136,6 +136,11 @@ int __MsgFunc_RainData(const char* pszName, int iSize, void* pbuf) //magic nippl
 	return gHUD.MsgFunc_RainData(pszName, iSize, pbuf);
 }
 
+int __MsgFunc_AddELight(const char* pszName, int iSize, void* pbuf) //magic nipples - elights
+{
+	return gHUD.MsgFunc_AddELight(pszName, iSize, pbuf);
+}
+
 // TFFree Command Menu
 void __CmdFunc_OpenCommandMenu(void)
 {
@@ -307,7 +312,8 @@ void CHud :: Init( void )
 	HOOK_MESSAGE( TeamScore );
 	HOOK_MESSAGE( TeamInfo );
 	HOOK_MESSAGE( SetFog ); //LRC - the fogging fog
-	HOOK_MESSAGE(RainData); //magic nipples - rain
+	HOOK_MESSAGE( RainData ); //magic nipples - rain
+	HOOK_MESSAGE( AddELight ); //magic nipples - elights
 
 	HOOK_MESSAGE( Spectator );
 	HOOK_MESSAGE( AllowSpec );
