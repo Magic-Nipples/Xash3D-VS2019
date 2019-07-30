@@ -1,13 +1,17 @@
-## Xash3D for Visual Studio 2019
+# Xash3D for Visual Studio 2019
 
+**Toolkit:**\
+[**Required files and toolkit can be found here!**](https://github.com/Magic-Nipples/Xash3D-VS2019-Toolkit)
+***
 **Credits:**\
 [Uncle Mike](https://hlfx.ru/forum/index.php) - Original creator of Xash3D.\
 [Slartibarty](https://twitter.com/Slartbarty) - Initial conversion to  VS2019.\
 [Magic_Nipples](https://twitter.com/Magic_Nipples) - continued work on this branch of the engine.
 
 **Documentation:**\
-[Wiki](http://www.xash3d.ru/doku.php?id=en:start)
+[Wiki](https://github.com/Magic-Nipples/Xash3D-VS2019/wiki) _(under construction)_
 
+***
 **Original credits:**\
 id Software\
 Valve LLC\
