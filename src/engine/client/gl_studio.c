@@ -25,7 +25,7 @@ GNU General Public License for more details.
 #include "cl_tent.h"
 
 #define EVENT_CLIENT	5000	// less than this value it's a server-side studio events
-#define MAX_LOCALLIGHTS	4
+#define MAX_LOCALLIGHTS	16 //4
 
 CVAR_DEFINE_AUTO( r_glowshellfreq, "2.2", 0, "glowing shell frequency update" );
 //CVAR_DEFINE_AUTO( r_shadows, "0", 0, "cast shadows from models" );
@@ -120,6 +120,8 @@ convar_t* r_shadow_y;
 convar_t* r_shade_speed;
 convar_t* r_lighting_interp;
 
+convar_t* r_elightsys;
+
 static r_studio_interface_t	*pStudioDraw;
 static studio_draw_state_t	g_studio;		// global studio state
 
@@ -154,6 +156,8 @@ void R_StudioInit( void )
 
 	r_shade_speed = Cvar_Get("r_lightlerp_speed", "0.1", FCVAR_ARCHIVE, "speed of light interpolation on model lighting");
 	r_lighting_interp = Cvar_Get("r_lighting_lerping", "1", FCVAR_ARCHIVE, "lighting interpolation for models");
+
+	r_elightsys = Cvar_Get("r_elightsys", "0", FCVAR_ARCHIVE, "Vertex lighting system based on elights");
 
 
 	Matrix3x4_LoadIdentity( g_studio.rotationmatrix );
@@ -1549,19 +1553,45 @@ void R_StudioSetupChrome( float *pchrome, int bone, vec3_t normal )
 		CrossProduct( tmp, chromeupvec, chromerightvec );
 		VectorNormalize( chromerightvec );
 
-		Matrix3x4_VectorIRotate( g_studio.bonestransform[bone], chromeupvec, g_studio.chromeup[bone] );
-		Matrix3x4_VectorIRotate( g_studio.bonestransform[bone], chromerightvec, g_studio.chromeright[bone] );
+		/*if ((FBitSet(m_pStudioHeader->flags, STUDIO_HAS_BONEWEIGHTS)))
+		{
+			VectorCopy(g_studio.chrome_origin, g_studio.lightbonepos[bone][i]);
+
+			VectorSubtract(RI.currententity->origin, g_studio.lightbonepos[bone][i], light[i]);
+		}
+		else*/
+		{
+			Matrix3x4_VectorIRotate(g_studio.bonestransform[bone], chromeupvec, g_studio.chromeup[bone]);
+			Matrix3x4_VectorIRotate(g_studio.bonestransform[bone], chromerightvec, g_studio.chromeright[bone]);
+		}
+
 
 		g_studio.chromeage[bone] = g_studio.framecount;
 	}
 
-	// calc s coord
-	n = DotProduct( normal, g_studio.chromeright[bone] );
-	pchrome[0] = (n + 1.0f) * 32.0f;
+	/*if ((FBitSet(m_pStudioHeader->flags, STUDIO_HAS_BONEWEIGHTS))) //magic nipples - chrome fix with bone weights
+	{
+		vec3_t	reverseright;
+		VectorNegate(RI.vright, reverseright);
 
-	// calc t coord
-	n = DotProduct( normal, g_studio.chromeup[bone] );
-	pchrome[1] = (n + 1.0f) * 32.0f;
+		// calc s coord
+		n = DotProduct(normal, reverseright);
+		pchrome[0] = (n + 1.0f) * 32.0f;
+
+		// calc t coord
+		n = DotProduct(normal, RI.vup);
+		pchrome[1] = (n + 1.0f) * -32.0f;
+	}
+	else*/
+	{
+		// calc s coord
+		n = DotProduct(normal, g_studio.chromeright[bone]);
+		pchrome[0] = (n + 1.0f) * 32.0f; //magic nipples - half the value of the chrome texture (in this case 64x64)
+
+		// calc t coord
+		n = DotProduct(normal, g_studio.chromeup[bone]);
+		pchrome[1] = (n + 1.0f) * 32.0f;
+	}
 }
 
 /*
@@ -1664,9 +1694,10 @@ void R_StudioDynamicLight( cl_entity_t *ent, alight_t *plight )
 	vec3_t		lightDir, vecSrc, vecEnd;
 	vec3_t		origin, dist, finalLight;
 	float		add, radius, total;
-	colorVec		light;
+	colorVec	light;
 	uint		lnum;
-	dlight_t		*dl;
+	dlight_t	*dl;
+	int			isSun = 0;
 
 	if( !plight || !ent || !ent->model )
 		return;
@@ -1720,6 +1751,8 @@ void R_StudioDynamicLight( cl_entity_t *ent, alight_t *plight )
 			light.r = LightToTexGamma( bound( 0, mv->skycolor_r, 255 ));
 			light.g = LightToTexGamma( bound( 0, mv->skycolor_g, 255 ));
 			light.b = LightToTexGamma( bound( 0, mv->skycolor_b, 255 ));
+
+			isSun = 1;
 		}
 	}
 
@@ -1829,12 +1862,22 @@ void R_StudioDynamicLight( cl_entity_t *ent, alight_t *plight )
 		}
 		else
 		{
-			ent->flFinalShade = SmoothValues(ent->flStartShade, (float)(VectorLength(lightDir)), ent->flFinalShade, g_studio.frametime + r_shade_speed->value);
+			if (r_elightsys->value > 0)
+			{
+				if (isSun == 1)
+					ent->flFinalShade = SmoothValues(ent->flStartShade, (float)(VectorLength(lightDir)), ent->flFinalShade, g_studio.frametime + r_shade_speed->value);
+				else
+					ent->flFinalShade = SmoothValues(ent->flStartShade, 0, ent->flFinalShade, g_studio.frametime + r_shade_speed->value);
+			}
+			else
+			{
+				ent->flFinalShade = SmoothValues(ent->flStartShade, (float)(VectorLength(lightDir)), ent->flFinalShade, g_studio.frametime + r_shade_speed->value);
+			}
 			ent->flStartShade = ent->flFinalShade;
 			plight->shadelight = ent->flFinalShade;
 
 			//ent->flFinalAmbient = SmoothValues(ent->flStartAmbient, (float)(total - plight->shadelight), ent->flFinalAmbient, g_studio.frametime + r_shade_speed->value); //dont like this method
-			ent->flFinalAmbient = SmoothValues(ent->flStartAmbient, (float)(plight->shadelight * 0.2f), ent->flFinalAmbient, g_studio.frametime + r_shade_speed->value);
+			ent->flFinalAmbient = SmoothValues(ent->flStartAmbient, (float)(VectorLength(lightDir) * 0.2f), ent->flFinalAmbient, g_studio.frametime + r_shade_speed->value);
 			ent->flStartAmbient = ent->flFinalAmbient;
 			plight->ambientlight = ent->flFinalAmbient;
 		}
@@ -1965,7 +2008,7 @@ void R_StudioEntityLight( alight_t *lightinfo )
 		if( f > r2 ) minstrength = r2 / f;
 		else minstrength = 1.0f;
 
-		if( minstrength > 0.05f )
+		if( minstrength > 0.025f ) //0.05f
 		{
 			if( g_studio.numlocallights >= MAX_LOCALLIGHTS )
 			{
@@ -1982,10 +2025,23 @@ void R_StudioEntityLight( alight_t *lightinfo )
 
 			if( k != -1 )
 			{
+				pmtrace_t tr = CL_TraceLine(el->origin, RI.currententity->origin, PM_STUDIO_IGNORE | PM_GLASS_IGNORE);
+
 				g_studio.locallightcolor[k].r = LightToTexGamma( el->color.r );
 				g_studio.locallightcolor[k].g = LightToTexGamma( el->color.g );
 				g_studio.locallightcolor[k].b = LightToTexGamma( el->color.b );
-				g_studio.locallightR2[k] = r2;
+
+				if (tr.fraction == 1.0f)
+				{
+					g_studio.locallightR2[k] = SmoothValues(ent->flStartr2[lnum], r2, g_studio.locallightR2[k], g_studio.frametime + r_shade_speed->value);
+					ent->flStartr2[lnum] = g_studio.locallightR2[k];
+				}
+				else
+				{
+					g_studio.locallightR2[k] = SmoothValues(ent->flStartr2[lnum], 0, g_studio.locallightR2[k], g_studio.frametime + r_shade_speed->value);
+					ent->flStartr2[lnum] = g_studio.locallightR2[k];
+				}
+				//g_studio.locallightR2[k] = r2;
 				g_studio.locallight[k] = el;
 				lstrength[k] = minstrength;
 
@@ -2149,18 +2205,24 @@ void R_LightStrength( int bone, vec3_t localpos, vec4_t light[MAX_LOCALLIGHTS] )
 
 	if( g_studio.lightage[bone] != g_studio.framecount )
 	{
-		for( i = 0; i < g_studio.numlocallights; i++ )
+		for (i = 0; i < g_studio.numlocallights; i++)
 		{
-			dlight_t *el = g_studio.locallight[i];
-			Matrix3x4_VectorITransform( g_studio.lighttransform[bone], el->origin, g_studio.lightbonepos[bone][i] );
+			dlight_t* el = g_studio.locallight[i];
+			if (FBitSet(m_pStudioHeader->flags, STUDIO_HAS_BONEWEIGHTS))
+				VectorCopy(el->origin, g_studio.lightbonepos[bone][i]);
+			else
+				Matrix3x4_VectorITransform(g_studio.lighttransform[bone], el->origin, g_studio.lightbonepos[bone][i]);
 		}
-
 		g_studio.lightage[bone] = g_studio.framecount;
 	}
 
 	for( i = 0; i < g_studio.numlocallights; i++ )
 	{
-		VectorSubtract( localpos, g_studio.lightbonepos[bone][i], light[i] );
+		if (FBitSet(m_pStudioHeader->flags, STUDIO_HAS_BONEWEIGHTS))
+			VectorSubtract(RI.currententity->origin, g_studio.lightbonepos[bone][i], light[i]);
+		else
+			VectorSubtract( localpos, g_studio.lightbonepos[bone][i], light[i] );
+
 		light[i][3] = 0.0f;
 	}
 }
@@ -2450,7 +2512,7 @@ static void R_StudioDrawPoints( void )
 		{
 			R_StudioComputeSkinMatrix( &pvertweight[i], skinMat );
 			Matrix3x4_VectorTransform( skinMat, pstudioverts[i], g_studio.verts[i] );
-			//R_LightStrength( pvertbone[i], pstudioverts[i], g_studio.lightpos[i] );
+			R_LightStrength(0, pstudioverts[i], g_studio.lightpos[i] ); //first parameter was pvertbone[i] but this fixes normals on boneweights
 		}
 
 		for( i = 0; i < m_pSubModel->numnorms; i++ )
@@ -2505,8 +2567,16 @@ static void R_StudioDrawPoints( void )
 					R_StudioLighting( &lv_tmp, -1, g_nFaceFlags, g_studio.norms[k] );
 				else R_StudioLighting( &lv_tmp, *pnormbone, g_nFaceFlags, (float *)pstudionorms );
 
-				if( FBitSet( g_nFaceFlags, STUDIO_NF_CHROME ))
-					R_StudioSetupChrome( g_studio.chrome[k], *pnormbone, (float *)pstudionorms );
+				if ((FBitSet(m_pStudioHeader->flags, STUDIO_HAS_BONEWEIGHTS))) //magic nipples - chrome fix with bone weights
+				{
+					if (FBitSet(g_nFaceFlags, STUDIO_NF_CHROME))
+						R_StudioSetupChrome(g_studio.chrome[k], -1, g_studio.norms[k]);
+				}
+				else
+				{
+					if (FBitSet(g_nFaceFlags, STUDIO_NF_CHROME))
+						R_StudioSetupChrome(g_studio.chrome[k], *pnormbone, (float*)pstudionorms);
+				}
 				VectorScale( g_studio.lightcolor, lv_tmp, g_studio.lightvalues[k] );
 			}
 		}
@@ -2557,11 +2627,30 @@ static void R_StudioDrawPoints( void )
 
 		R_StudioSetupSkin( m_pStudioHeader, pskinref[pmesh->skinref] );
 
-		if( FBitSet( g_nFaceFlags, STUDIO_NF_CHROME ))
+		/*if( FBitSet( g_nFaceFlags, STUDIO_NF_CHROME ))
 			R_StudioDrawChromeMesh( ptricmds, pstudionorms, s, t, shellscale );
 		else if( FBitSet( g_nFaceFlags, STUDIO_NF_UV_COORDS ))
 			R_StudioDrawFloatMesh( ptricmds, pstudionorms );
-		else R_StudioDrawNormalMesh( ptricmds, pstudionorms, s, t );
+		else R_StudioDrawNormalMesh( ptricmds, pstudionorms, s, t );*/
+
+		if (FBitSet(g_nFaceFlags, STUDIO_NF_CHROME))
+		{
+			if (FBitSet(m_pStudioHeader->flags, STUDIO_HAS_BONEWEIGHTS))
+				R_StudioDrawChromeMesh(ptricmds, (vec3_t *)g_studio.norms[0], s, t, shellscale);
+			else
+				R_StudioDrawChromeMesh(ptricmds, pstudionorms, s, t, shellscale);
+		}
+		else if (FBitSet(g_nFaceFlags, STUDIO_NF_UV_COORDS))
+		{
+			R_StudioDrawFloatMesh(ptricmds, pstudionorms);
+		}
+		else
+		{
+			if (FBitSet(m_pStudioHeader->flags, STUDIO_HAS_BONEWEIGHTS))
+				R_StudioDrawNormalMesh(ptricmds, (vec3_t *)g_studio.norms[0], s, t);
+			else
+				R_StudioDrawNormalMesh(ptricmds, pstudionorms, s, t);
+		}
 
 		if( FBitSet( g_nFaceFlags, STUDIO_NF_MASKED ))
 		{

@@ -63,6 +63,8 @@ typedef struct cl_entity_s cl_entity_t;
 #include "entity_state.h"
 #include "event_args.h"
 
+#define MAX_ELIGHTS			128//64		// entity only point lights
+
 struct cl_entity_s
 {
 	int		index;      	// Index into cl_entities ( should match actual slot, but not necessarily )
@@ -101,6 +103,7 @@ struct cl_entity_s
 	int		visframe;	// last frame this entity was found in an active leaf
 	colorVec		cvFloorColor;
 
+	// Magic Nipples - new variable for gl_studio.c
 	float	flStartShade;
 	float	flFinalShade;
 	float	flStartAmbient;
@@ -110,6 +113,8 @@ struct cl_entity_s
 	vec3_t	ltStartVec;
 	vec3_t	ltFinalVec;
 	int		ltTime;
+
+	float	flStartr2[MAX_ELIGHTS];
 };
 
 #endif//CL_ENTITY_H
