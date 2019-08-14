@@ -25,7 +25,7 @@ GNU General Public License for more details.
 #include "cl_tent.h"
 
 #define EVENT_CLIENT	5000	// less than this value it's a server-side studio events
-#define MAX_LOCALLIGHTS	16 //4
+#define MAX_LOCALLIGHTS	32 //4
 
 CVAR_DEFINE_AUTO( r_glowshellfreq, "2.2", 0, "glowing shell frequency update" );
 //CVAR_DEFINE_AUTO( r_shadows, "0", 0, "cast shadows from models" );
@@ -1854,25 +1854,30 @@ void R_StudioDynamicLight( cl_entity_t *ent, alight_t *plight )
 	{
 		if (ent->ltTime == 0)
 		{
-			plight->shadelight = VectorLength(lightDir);
-			plight->ambientlight = total - plight->shadelight;
+			if ( (r_elightsys->value > 0) && (isSun == 0) )
+			{	
+				plight->shadelight = 0;
+				plight->ambientlight = (float)(VectorLength(lightDir) * 0.2f);
 
-			ent->flStartShade = ent->flFinalShade = VectorLength(lightDir);
-			plight->ambientlight = ent->flFinalAmbient = total - plight->shadelight;
-		}
-		else
-		{
-			if (r_elightsys->value > 0)
-			{
-				if (isSun == 1)
-					ent->flFinalShade = SmoothValues(ent->flStartShade, (float)(VectorLength(lightDir)), ent->flFinalShade, g_studio.frametime + r_shade_speed->value);
-				else
-					ent->flFinalShade = SmoothValues(ent->flStartShade, 0, ent->flFinalShade, g_studio.frametime + r_shade_speed->value);
+				ent->flStartShade = ent->flFinalShade = 0;
+				plight->ambientlight = ent->flFinalAmbient = (float)(VectorLength(lightDir) * 0.2f);	
 			}
 			else
 			{
-				ent->flFinalShade = SmoothValues(ent->flStartShade, (float)(VectorLength(lightDir)), ent->flFinalShade, g_studio.frametime + r_shade_speed->value);
+				plight->shadelight = VectorLength(lightDir);
+				plight->ambientlight = (float)(VectorLength(lightDir) * 0.2f);
+
+				ent->flStartShade = ent->flFinalShade = VectorLength(lightDir);
+				plight->ambientlight = ent->flFinalAmbient = (float)(VectorLength(lightDir) * 0.2f);
 			}
+		}
+		else
+		{
+			if ((r_elightsys->value > 0) && (isSun == 0))
+				ent->flFinalShade = SmoothValues(ent->flStartShade, 0, ent->flFinalShade, g_studio.frametime + r_shade_speed->value);
+			else
+				ent->flFinalShade = SmoothValues(ent->flStartShade, (float)(VectorLength(lightDir)), ent->flFinalShade, g_studio.frametime + r_shade_speed->value);
+
 			ent->flStartShade = ent->flFinalShade;
 			plight->shadelight = ent->flFinalShade;
 
@@ -1979,6 +1984,9 @@ void R_StudioEntityLight( alight_t *lightinfo )
 	if( !ent || !r_dynamic->value )
 		return;
 
+	if (r_elightsys->value < 1)
+		return;
+
 	for( i = 0; i < MAX_LOCALLIGHTS; i++ )
 		lstrength[i] = 0;
 
@@ -2025,7 +2033,13 @@ void R_StudioEntityLight( alight_t *lightinfo )
 
 			if( k != -1 )
 			{
-				pmtrace_t tr = CL_TraceLine(el->origin, RI.currententity->origin, PM_STUDIO_IGNORE | PM_GLASS_IGNORE);
+				vec3_t mid;
+				VectorCopy(RI.currententity->origin, mid);
+
+				if (RI.currententity != &clgame.viewent)
+					mid[2] = RI.currententity->origin[2] + 24; //hardcoded value so origin isn't at models feet
+	
+				pmtrace_t tr = CL_TraceLine(el->origin, mid, PM_STUDIO_IGNORE | PM_GLASS_IGNORE);
 
 				g_studio.locallightcolor[k].r = LightToTexGamma( el->color.r );
 				g_studio.locallightcolor[k].g = LightToTexGamma( el->color.g );

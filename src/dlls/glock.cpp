@@ -95,12 +95,16 @@ BOOL CGlock::Deploy( )
 
 void CGlock::SecondaryAttack( void )
 {
-	GlockFire( 0.1, 0.2, FALSE );
+	//GlockFire( 0.1, 0.2, FALSE );
 }
 
 void CGlock::PrimaryAttack( void )
 {
-	GlockFire( 0.01, 0.3, TRUE );
+	//GlockFire( 0.01, 0.3, TRUE );
+	if (!(m_pPlayer->m_afButtonPressed & IN_ATTACK))
+		return;
+
+	GlockFire(0.01, 0.1, TRUE);
 }
 
 void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )

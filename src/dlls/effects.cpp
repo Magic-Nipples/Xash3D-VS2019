@@ -2771,7 +2771,7 @@ void CEnvELight::Spawn(void)
 	if (m_fLightActive)
 	{
 		SetThink(&CEnvELight::LightFrame);
-		pev->nextthink = gpGlobals->time + 0.1;
+		pev->nextthink = gpGlobals->time + 0.01; //changed from 0.1
 	}
 
 	m_pGoalEnt = UTIL_FindEntityByTargetname(NULL, STRING(pev->target));
