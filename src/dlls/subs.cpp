@@ -108,6 +108,9 @@ void CBaseEntity::UpdateOnRemove( void )
 	}
 	if ( pev->globalname )
 		gGlobalState.EntitySetState( pev->globalname, GLOBAL_DEAD );
+
+	// don't forget release physbody
+	WorldPhysic.RemoveBody( ENT( pev ));
 }
 
 // Convenient way to delay removing oneself

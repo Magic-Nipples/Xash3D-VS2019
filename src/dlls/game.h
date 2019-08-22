@@ -17,6 +17,7 @@
 #define GAME_H
 
 extern void GameDLLInit( void );
+extern void GameDLLShutdown( void ); //newton
 
 
 extern cvar_t	displaysoundlist;

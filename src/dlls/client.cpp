@@ -575,6 +575,7 @@ void ServerDeactivate( void )
 
 	// Peform any shutdown operations here...
 	//
+	WorldPhysic.FreeAllBodies();
 }
 
 void ServerActivate( edict_t *pEdictList, int edictCount, int clientMax )
@@ -679,6 +680,9 @@ void StartFrame( void )
 
 	if ( g_fGameOver )
 		return;
+
+	// update physic step
+	WorldPhysic.Update(gpGlobals->frametime);
 
 	gpGlobals->teamplay = teamplay.value;
 	g_ulFrameCount++;
@@ -1800,5 +1804,41 @@ AllowLagCompensation
 */
 int AllowLagCompensation( void )
 {
+	return 1;
+}
+
+/*
+================================
+ShouldCollide
+
+  Called when the engine believes two entities are about to collide. Return 0 if you
+  want the two entities to just pass through each other without colliding or calling the
+  touch function.
+================================
+*/
+int ShouldCollide(edict_t* pentTouched, edict_t* pentOther)
+{
+	// To make this a fast check, use iuser4 for the discs to know what other discs they should collide with
+	if (pentTouched->v.iuser4 != 0 && pentOther->v.iuser4 != 0)
+	{
+		// Two friendly discs will have matching iuser4's
+		if (pentTouched->v.iuser4 == pentOther->v.iuser4)
+		{
+			return 0;
+		}
+
+		// Discs hitting their owners
+		CBaseEntity* pTouched = CBaseEntity::Instance(pentTouched);
+		CBaseEntity* pOther = CBaseEntity::Instance(pentOther);
+		/*
+		if ( pOther->IsDisc() && pTouched->IsPlayer() && ((CDisc*)pOther)->m_hOwner == pTouched )
+			return 0;
+		if ( pTouched->IsDisc() && pOther->IsPlayer() && ((CDisc*)pTouched)->m_hOwner == pOther )
+			return 0;
+		*/
+		//if ( pOther->IsDisc() || pTouched->IsDisc() )
+			//return 0;
+	}
+
 	return 1;
 }

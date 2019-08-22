@@ -67,6 +67,10 @@ CSatchel g_Satchel;
 CTripmine g_Tripmine;
 CSqueak g_Snark;
 
+matrix4x4::matrix4x4(void)
+{
+}
+
 
 /*
 ======================

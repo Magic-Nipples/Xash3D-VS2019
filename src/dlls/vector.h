@@ -15,6 +15,25 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#define PITCH	0
+#define YAW	1
+#define ROLL	2
+
+inline void SinCos( float angle, float *sine, float *cosine ) 
+{
+	__asm
+	{
+		push	ecx
+		fld	dword ptr angle
+		fsincos
+		mov	ecx, dword ptr[cosine]
+		fstp      dword ptr [ecx]
+		mov 	ecx, dword ptr[sine]
+		fstp	dword ptr [ecx]
+		pop	ecx
+	}
+}
+
 //=========================================================
 // 2DVector - used for many pathfinding and many other 
 // operations that are treated as planar rather than 3d.
@@ -103,10 +122,43 @@ public:
 	// Members
 	vec_t x, y, z;
 };
+
 inline Vector operator*(float fl, const Vector& v)	{ return v * fl; }
 inline float DotProduct(const Vector& a, const Vector& b) { return(a.x*b.x+a.y*b.y+a.z*b.z); }
 inline Vector CrossProduct(const Vector& a, const Vector& b) { return Vector( a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x ); }
 
+//=========================================================
+// 4D Vector - for matrix operations
+//=========================================================
+class Vector4D					
+{
+public:
+	// Members
+	float x, y, z, w;
 
+	// Construction/destruction
+	inline Vector4D( void ) { }
+	inline Vector4D( float X, float Y, float Z, float W ) { x = X; y = Y; z = Z; w = W; }
+	inline Vector4D( const Vector4D& v ) { x = v.x; y = v.y; z = v.z, w = v.w; } 
+	inline Vector4D( const float *pFloat ) { x = pFloat[0]; y = pFloat[1]; z = pFloat[2]; w = pFloat[3];}
+
+	// Initialization
+	void Init( float ix = 0.0f, float iy = 0.0f, float iz = 0.0f, float iw = 0.0f )
+	{
+		x = ix; y = iy; z = iz; w = iw;
+	}
+
+	// Vectors will now automatically convert to float * when needed
+	operator float *()					{ return &x; }
+	operator const float *() const			{ return &x; } 
+
+	// Vectors will now automatically convert to Vector when needed
+	operator Vector()					{ return Vector( x, y, z ); }
+	operator const Vector() const				{ return Vector( x, y, z ); } 
+
+	// equality
+	bool operator==(const Vector4D& v) const { return v.x==x && v.y==y && v.z==z && v.w==w; }
+	bool operator!=(const Vector4D& v) const { return !(*this==v); }
+};
 
 #endif

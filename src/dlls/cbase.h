@@ -140,9 +140,16 @@ public:
 	// pointers to engine data
 	entvars_t *pev;		// Don't need to save/restore this pointer, the engine resets it
 
+	NewtonBody	*m_pBody;	// This pointer will be restored from matrices on DispatchRestore //newton
+
 	// path corners
 	CBaseEntity			*m_pGoalEnt;// path corner we are heading towards
 	CBaseEntity			*m_pLink;// used for temporary link-list operations. 
+
+	//newton
+	matrix4x4	m_center;
+	Vector		m_vecForce;
+	Vector		m_vecTorque;
 
 	// initialization functions
 	virtual void	Spawn( void ) { return; }
@@ -152,6 +159,7 @@ public:
 	virtual int		Restore( CRestore &restore );
 	virtual int		ObjectCaps( void ) { return FCAP_ACROSS_TRANSITION; }
 	virtual void	Activate( void ) {}
+	virtual int		IsRigidBody( void ) { return FALSE; } //newton
 	
 	// Setup the object->object collision box (pev->mins / pev->maxs is the object->world collision box)
 	virtual void	SetObjectCollisionBox( void );

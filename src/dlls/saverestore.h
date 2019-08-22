@@ -16,6 +16,8 @@
 #ifndef SAVERESTORE_H
 #define SAVERESTORE_H
 
+#include "physic.h"
+
 class CBaseEntity;
 
 class CSaveRestoreBuffer
@@ -57,6 +59,8 @@ public:
 	void	WriteString( const char *pname, const char *pstring );			// Save a null-terminated string
 	void	WriteString( const char *pname, const int *stringId, int count );	// Save a null-terminated string (engine string)
 	void	WriteVector( const char *pname, const Vector &value );				// Save a vector
+	void	WriteVector4D( const char *pname, const float *value, int conut );
+	void	WriteMatrix( const char *pname, const float *value, int count );
 	void	WriteVector( const char *pname, const float *value, int count );	// Save a vector
 	void	WritePositionVector( const char *pname, const Vector &value );		// Offset for landmark if necessary
 	void	WritePositionVector( const char *pname, const float *value, int count );	// array of pos vectors

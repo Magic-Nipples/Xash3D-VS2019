@@ -16,6 +16,9 @@
     <Filter Include="Source Files\Weapons">
       <UniqueIdentifier>{6f331856-4972-4d8d-8f10-8e4007290389}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\NewtonPhysics">
+      <UniqueIdentifier>{c360b7f5-4436-4368-bda9-a75e5b1b3a62}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="aflock.cpp">
@@ -324,6 +327,15 @@
     <ClCompile Include="props.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="matrix.cpp">
+      <Filter>Source Files\NewtonPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="physic.cpp">
+      <Filter>Source Files\NewtonPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="physgun.cpp">
+      <Filter>Source Files\Weapons</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="activity.h">
@@ -460,6 +472,18 @@
     </ClInclude>
     <ClInclude Include="weapons.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bspfile.h">
+      <Filter>Source Files\NewtonPhysics</Filter>
+    </ClInclude>
+    <ClInclude Include="matrix.h">
+      <Filter>Source Files\NewtonPhysics</Filter>
+    </ClInclude>
+    <ClInclude Include="Newton.h">
+      <Filter>Source Files\NewtonPhysics</Filter>
+    </ClInclude>
+    <ClInclude Include="physic.h">
+      <Filter>Source Files\NewtonPhysics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

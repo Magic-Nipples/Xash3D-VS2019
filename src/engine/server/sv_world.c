@@ -1165,7 +1165,7 @@ static qboolean SV_ClipToEntity( edict_t *touch, moveclip_t *clip )
 	}
 
 	// monsterclip filter (solid custom is a static or dynamic bodies)
-	if( touch->v.solid == SOLID_BSP || touch->v.solid == SOLID_CUSTOM )
+	if( touch->v.solid == SOLID_BSP /*|| touch->v.solid == SOLID_CUSTOM*/ )
 	{
 		// func_monsterclip works only with monsters that have same flag!
 		if( FBitSet( touch->v.flags, FL_MONSTERCLIP ) && !clip->monsterclip )
@@ -1223,9 +1223,9 @@ static qboolean SV_ClipToEntity( edict_t *touch, moveclip_t *clip )
 	if( touch->v.solid == SOLID_PORTAL )
 		SV_PortalCSG( touch, clip->mins, clip->maxs, clip->start, clip->end, &clip->trace );
 
-	if( touch->v.solid == SOLID_CUSTOM )
-		SV_CustomClipMoveToEntity( touch, clip->start, clip->mins, clip->maxs, clip->end, &trace );
-	else if( FBitSet( touch->v.flags, FL_MONSTER ))
+	//if( touch->v.solid == SOLID_CUSTOM )
+	//	SV_CustomClipMoveToEntity( touch, clip->start, clip->mins, clip->maxs, clip->end, &trace );
+	/*else*/ if( FBitSet( touch->v.flags, FL_MONSTER ))
 		SV_ClipMoveToEntity( touch, clip->start, clip->mins2, clip->maxs2, clip->end, &trace );
 	else SV_ClipMoveToEntity( touch, clip->start, clip->mins, clip->maxs, clip->end, &trace );
 

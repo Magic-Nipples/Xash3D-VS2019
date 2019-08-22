@@ -74,6 +74,8 @@ typedef float vec_t;				// needed before including progdefs.h
 // Defining it as a (bogus) struct helps enforce type-checking
 #define vec3_t Vector
 
+#define vec4_t Vector //prevents Error C3646
+
 // Shared engine/DLL constants
 #include "const.h"
 #include "progdefs.h"

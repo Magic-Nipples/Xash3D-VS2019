@@ -359,6 +359,9 @@ typedef enum _fieldtypes
 	FIELD_MODELNAME,		// Engine string that is a model name (needs precache)
 	FIELD_SOUNDNAME,		// Engine string that is a sound name (needs precache)
 
+	FIELD_VECTOR4D,		// An element of Matrix 16x16 //newton
+	FIELD_MATRIX,		// Matrix for keep physbody's states //newton
+
 	FIELD_TYPECOUNT,		// MUST BE LAST
 } FIELDTYPE;
 

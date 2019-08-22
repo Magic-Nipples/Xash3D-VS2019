@@ -1662,6 +1662,8 @@ static int gSizes[FIELD_TYPECOUNT] =
 	sizeof(float),		// FIELD_TIME
 	sizeof(int),		// FIELD_MODELNAME
 	sizeof(int),		// FIELD_SOUNDNAME
+	sizeof(Vector4D),		// FIELD_VECTOR4D
+	sizeof(matrix4x4)		// FIELD_MATRIX
 };
 
 
@@ -1918,12 +1920,22 @@ void CSave :: WriteString( const char *pname, const int *stringId, int count )
 #endif
 }
 
+void CSave :: WriteMatrix( const char *pname, const float *value, int count )
+{
+	BufferHeader( pname, sizeof( float ) * 16 * count );
+	BufferData( (const char *)value, sizeof( float ) * 16 * count );
+}
 
 void CSave :: WriteVector( const char *pname, const Vector &value )
 {
 	WriteVector( pname, &value.x, 1 );
 }
 
+void CSave :: WriteVector4D( const char *pname, const float *value, int count )
+{
+	BufferHeader( pname, sizeof( float ) * 4 * count );
+	BufferData( (const char *)value, sizeof( float ) * 4 * count );
+}
 
 void CSave :: WriteVector( const char *pname, const float *value, int count )
 {
@@ -2114,6 +2126,12 @@ int CSave :: WriteFields( const char *pname, void *pBaseData, TYPEDESCRIPTION *p
 			WriteVector( pTest->fieldName, (float *)pOutputData, pTest->fieldSize );
 		break;
 
+		case FIELD_VECTOR4D:
+			WriteVector4D( pTest->fieldName, (float *)pOutputData, pTest->fieldSize );
+		break;
+		case FIELD_MATRIX:
+			WriteMatrix( pTest->fieldName, (float *)pOutputData, pTest->fieldSize );
+		break;
 		case FIELD_BOOLEAN:
 		case FIELD_INTEGER:
 			WriteInt( pTest->fieldName, (int *)pOutputData, pTest->fieldSize );
@@ -2323,6 +2341,30 @@ int CRestore::ReadField( void *pBaseData, TYPEDESCRIPTION *pFields, int fieldCou
 						((float *)pOutputData)[0] = ((float *)pInputData)[0];
 						((float *)pOutputData)[1] = ((float *)pInputData)[1];
 						((float *)pOutputData)[2] = ((float *)pInputData)[2];
+					break;
+					case FIELD_VECTOR4D:
+						((float *)pOutputData)[0] = ((float *)pInputData)[0];
+						((float *)pOutputData)[1] = ((float *)pInputData)[1];
+						((float *)pOutputData)[2] = ((float *)pInputData)[2];
+						((float *)pOutputData)[3] = ((float *)pInputData)[3];
+					break;
+					case FIELD_MATRIX:
+						((float *)pOutputData)[0] = ((float *)pInputData)[0];
+						((float *)pOutputData)[1] = ((float *)pInputData)[1];
+						((float *)pOutputData)[2] = ((float *)pInputData)[2];
+						((float *)pOutputData)[3] = ((float *)pInputData)[3];
+						((float *)pOutputData)[4] = ((float *)pInputData)[4];
+						((float *)pOutputData)[5] = ((float *)pInputData)[5];
+						((float *)pOutputData)[6] = ((float *)pInputData)[6];
+						((float *)pOutputData)[7] = ((float *)pInputData)[7];
+						((float *)pOutputData)[8] = ((float *)pInputData)[8];
+						((float *)pOutputData)[9] = ((float *)pInputData)[9];
+						((float *)pOutputData)[10] = ((float *)pInputData)[10];
+						((float *)pOutputData)[11] = ((float *)pInputData)[11];
+						((float *)pOutputData)[12] = ((float *)pInputData)[12];
+						((float *)pOutputData)[13] = ((float *)pInputData)[13];
+						((float *)pOutputData)[14] = ((float *)pInputData)[14];
+						((float *)pOutputData)[15] = ((float *)pInputData)[15];
 					break;
 					case FIELD_POSITION_VECTOR:
 						((float *)pOutputData)[0] = ((float *)pInputData)[0] + position.x;

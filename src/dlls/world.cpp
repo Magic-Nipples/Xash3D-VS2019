@@ -607,6 +607,28 @@ void CWorld :: Precache( void )
 	for ( int i = 0; i < ARRAYSIZE(gDecals); i++ )
 		gDecals[i].index = DECAL_INDEX( gDecals[i].name );
 
+	// make sure the .BIN file is newer than the .BSP file. //newton
+	if (!WorldPhysic.CheckBINFile((char*)STRING(gpGlobals->mapname)))
+	{// BIN file is not present, or is older than the BSP file.
+		WorldPhysic.BuildCollisionTree((char*)STRING(gpGlobals->mapname));
+	}
+	else
+	{// Load the node graph for this level
+		if (!WorldPhysic.FLoadTree((char*)STRING(gpGlobals->mapname)))
+		{// couldn't load, so alloc and prepare to build a graph.
+			ALERT(at_console, "*Error opening .BIN file\n");
+			WorldPhysic.BuildCollisionTree((char*)STRING(gpGlobals->mapname));
+		}
+		else
+		{
+			ALERT(at_console, "\n*Physic Initialized!\n");
+			WorldPhysic.LoadBSPFile((char*)STRING(gpGlobals->mapname));
+			// just create convex hulls from bmodels
+		}
+	}
+	// set world before activate entities
+	WorldPhysic.SetupWorld();
+
 // init the WorldGraph.
 	WorldGraph.InitGraph();
 

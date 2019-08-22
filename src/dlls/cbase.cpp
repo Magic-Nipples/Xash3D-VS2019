@@ -27,6 +27,8 @@ extern "C" void PM_Move ( struct playermove_s *ppmove, int server );
 extern "C" void PM_Init ( struct playermove_s *ppmove  );
 extern "C" char PM_FindTextureType( char *name );
 
+void OnFreeEntPrivateData(edict_s *pEdict);
+
 extern Vector VecBModelOrigin( entvars_t* pevBModel );
 extern DLL_GLOBAL Vector		g_vecAttackDir;
 extern DLL_GLOBAL int			g_iSkillLevel;
@@ -95,6 +97,13 @@ static DLL_FUNCTIONS gFunctionTable =
 	AllowLagCompensation,		//pfnAllowLagCompensation
 };
 
+NEW_DLL_FUNCTIONS gNewDLLFunctions =
+{
+	OnFreeEntPrivateData,		//pfnOnFreeEntPrivateData
+	GameDLLShutdown,			//pfnGameShutdown
+	ShouldCollide,				//pfnShouldCollide
+};
+
 static void SetObjectCollisionBox( entvars_t *pev );
 
 #ifndef _WIN32
@@ -121,6 +130,18 @@ int GetEntityAPI2( DLL_FUNCTIONS *pFunctionTable, int *interfaceVersion )
 	}
 	
 	memcpy( pFunctionTable, &gFunctionTable, sizeof( DLL_FUNCTIONS ) );
+	return TRUE;
+}
+
+int GetNewDLLFunctions(NEW_DLL_FUNCTIONS *pFunctionTable, int *interfaceVersion)
+{
+	if(!pFunctionTable || *interfaceVersion != NEW_DLL_FUNCTIONS_VERSION)
+	{
+		*interfaceVersion = NEW_DLL_FUNCTIONS_VERSION;
+		return FALSE;
+	}
+
+	memcpy(pFunctionTable, &gNewDLLFunctions, sizeof(gNewDLLFunctions));
 	return TRUE;
 }
 
@@ -224,6 +245,9 @@ void DispatchUse( edict_t *pentUsed, edict_t *pentOther )
 	CBaseEntity *pEntity = (CBaseEntity *)GET_PRIVATE(pentUsed);
 	CBaseEntity *pOther = (CBaseEntity *)GET_PRIVATE(pentOther);
 
+	if( pentUsed && pentOther )
+		ALERT( at_console, "DispatchUse: %s %s\n", STRING( pentUsed->v.classname ), STRING( pentOther->v.classname ));
+
 	if (pEntity && !(pEntity->pev->flags & FL_KILLME) )
 		pEntity->Use( pOther, pOther, USE_TOGGLE, 0 );
 }
@@ -281,6 +305,14 @@ void DispatchSave( edict_t *pent, SAVERESTOREDATA *pSaveData )
 	}
 }
 
+void OnFreeEntPrivateData( edict_s *pEdict )
+{
+	if( pEdict && pEdict->pvPrivateData )
+	{
+		WorldPhysic.RemoveBody( pEdict );
+		((CBaseEntity*)pEdict->pvPrivateData)->~CBaseEntity();
+	}
+}
 
 // Find the matching global entity.  Spit out an error if the designer made entities of
 // different classes with the same global name
@@ -592,6 +624,10 @@ TYPEDESCRIPTION	CBaseEntity::m_SaveData[] =
 	DEFINE_FIELD( CBaseEntity, m_pfnTouch, FIELD_FUNCTION ),
 	DEFINE_FIELD( CBaseEntity, m_pfnUse, FIELD_FUNCTION ),
 	DEFINE_FIELD( CBaseEntity, m_pfnBlocked, FIELD_FUNCTION ),
+
+	DEFINE_FIELD( CBaseEntity, m_center, FIELD_MATRIX ),
+	DEFINE_FIELD( CBaseEntity, m_vecForce, FIELD_VECTOR ),
+	DEFINE_FIELD( CBaseEntity, m_vecTorque, FIELD_VECTOR ),
 };
 
 
@@ -622,6 +658,9 @@ int CBaseEntity::Restore( CRestore &restore )
 		SET_MODEL(ENT(pev), STRING(pev->model));
 		UTIL_SetSize(pev, mins, maxs);	// Reset them
 	}
+
+	if( IsRigidBody() )
+		m_pBody = WorldPhysic.RestoreBody( this );
 
 	return status;
 }

@@ -16,6 +16,7 @@
 #include "eiface.h"
 #include "util.h"
 #include "game.h"
+#include "physic.h"
 
 cvar_t	displaysoundlist = {"displaysoundlist","0"};
 
@@ -886,5 +887,12 @@ void GameDLLInit( void )
 // END REGISTER CVARS FOR SKILL LEVEL STUFF
 
 	SERVER_COMMAND( "exec skill.cfg\n" );
+
+// init the WorldPhysic
+	WorldPhysic.InitPhysic();
 }
 
+void GameDLLShutdown()
+{
+	WorldPhysic.FreePhysic();	// release physic world
+}

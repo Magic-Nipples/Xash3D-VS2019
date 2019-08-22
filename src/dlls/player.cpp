@@ -2506,6 +2506,8 @@ void CBasePlayer::PostThink()
 	if (delta > 0.25)
 		delta = 0.25;
 
+	//WorldPhysic.SetVelocity(this, pev->velocity); //magic nipples - TESTTEST
+
 	//float preserveZ = pev->velocity.z;
 	Vector copyVel = pev->velocity;
 	copyVel.z = 0;
@@ -2852,6 +2854,8 @@ void CBasePlayer::Spawn( void )
 	m_afPhysicsFlags	= 0;
 	m_fLongJump			= FALSE;// no longjump module. 
 	m_flTimeDelta		= -1;
+
+	//m_pBody = WorldPhysic.CreateBodyFromPlayer();// pPlayer); //magic nipples - TESTTEST
 
 	//magic nipples - rain
 	Rain_dripsPerSecond = 0;
@@ -3545,6 +3549,7 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 		GiveNamedItem( "ammo_ARgrenades" );
 		GiveNamedItem( "weapon_handgrenade" );
 		GiveNamedItem( "weapon_tripmine" );
+		GiveNamedItem( "weapon_physgun" );
 #ifndef OEM_BUILD
 		GiveNamedItem( "weapon_357" );
 		GiveNamedItem( "ammo_357" );

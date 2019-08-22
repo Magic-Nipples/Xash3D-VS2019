@@ -105,12 +105,12 @@ qboolean SV_CopyEdictToPhysEnt( physent_t *pe, edict_t *ed )
 		VectorCopy( ed->v.mins, pe->mins );
 		VectorCopy( ed->v.maxs, pe->maxs );
 		break;
-	case SOLID_CUSTOM:
+	/*case SOLID_CUSTOM:
 		pe->model = (mod->type == mod_brush) ? mod : NULL;
 		pe->studiomodel = (mod->type == mod_studio) ? mod : NULL;
 		VectorCopy( ed->v.mins, pe->mins );
 		VectorCopy( ed->v.maxs, pe->maxs );
-		break;
+		break;*/
 	default:
 		pe->studiomodel = (mod->type == mod_studio) ? mod : NULL;
 		VectorCopy( ed->v.mins, pe->mins );
