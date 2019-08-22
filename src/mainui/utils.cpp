@@ -93,9 +93,9 @@ int ColorPrexfixCount( const char *str )
 
 void StringConcat( char *dst, const char *src, size_t size )
 {
-	register char *d = dst;
-	register const char *s = src;
-	register size_t n = size;
+	char *d = dst;
+	const char *s = src;
+	size_t n = size;
 	size_t dlen;
 
 	if( !dst || !src || !size )

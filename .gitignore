@@ -10,8 +10,13 @@
 # Ignore these folders
 *.vs
 .vs/
-bin/
-int/
+[Bb]uild/
+[Gg]ame/
+[Cc]ontent/
+
+# Visual Studio files
+*.user
+*.aps
 
 # Precompiled Headers
 *.gch

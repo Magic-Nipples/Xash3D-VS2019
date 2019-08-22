@@ -172,7 +172,7 @@ int CHudHealth::Draw(float flTime)
 {
 	int r, g, b;
 	int a = 0, x, y;
-	int HealthWidth;
+	//int HealthWidth;
 
 	if ( (gHUD.m_iHideHUDDisplay & HIDEHUD_HEALTH) || gEngfuncs.IsSpectateOnly() )
 		return 1;
