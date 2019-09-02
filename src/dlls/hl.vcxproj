@@ -76,7 +76,7 @@
       <ModuleDefinitionFile>.\hl.def</ModuleDefinitionFile>
       <ImportLibrary>
       </ImportLibrary>
-      <AdditionalDependencies>newton.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;newton.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <CustomBuildStep />
@@ -89,10 +89,8 @@
       </Outputs>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Message>
-      </Message>
-      <Command>
-      </Command>
+      <Message>Performing Post-Build Event on server.dll</Message>
+      <Command>copy $(TargetDir)server.dll "D:\Documents\Xash3D-VS2019_build\valve\bin\server.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -205,6 +203,7 @@
     <ClCompile Include="python.cpp" />
     <ClCompile Include="rat.cpp" />
     <ClCompile Include="roach.cpp" />
+    <ClCompile Include="rope.cpp" />
     <ClCompile Include="rpg.cpp" />
     <ClCompile Include="satchel.cpp" />
     <ClCompile Include="schedule.cpp" />

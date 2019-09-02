@@ -78,10 +78,8 @@
       </Outputs>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Message>
-      </Message>
-      <Command>
-      </Command>
+      <Message>Performing Post-Build Event on hl.exe</Message>
+      <Command>copy $(TargetDir)game.exe "D:\Documents\Xash3D-VS2019_build\hl.exe"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

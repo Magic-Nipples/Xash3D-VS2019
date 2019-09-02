@@ -271,6 +271,9 @@
     <ClCompile Include="vgui_teammenu.cpp">
       <Filter>Source Files\vgui</Filter>
     </ClCompile>
+    <ClCompile Include="tri_rope.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="parsemsg.h">
@@ -403,6 +406,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="rain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tri_rope.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -112,12 +112,10 @@
       </Outputs>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>copy $(TargetDir)client.dll "D:\Documents\Xash3D-VS2019_build\valve\bin\client.dll"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>
-      </Message>
+      <Message>Performing Post-Build Event on Client.dll</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -193,6 +191,7 @@
     <ClCompile Include="text_message.cpp" />
     <ClCompile Include="train.cpp" />
     <ClCompile Include="tri.cpp" />
+    <ClCompile Include="tri_rope.cpp" />
     <ClCompile Include="util.cpp" />
     <ClCompile Include="vgui_ClassMenu.cpp" />
     <ClCompile Include="vgui_ConsolePanel.cpp" />
@@ -241,6 +240,7 @@
     <ClInclude Include="rain.h" />
     <ClInclude Include="StudioModelRenderer.h" />
     <ClInclude Include="studio_util.h" />
+    <ClInclude Include="tri_rope.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="util_vector.h" />
     <ClInclude Include="vgui_ConsolePanel.h" />
