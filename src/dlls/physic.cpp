@@ -12,6 +12,8 @@
 #include <io.h>
 #include <time.h>
 
+#include <gl/gl.h>
+
 CPhysic WorldPhysic;
 
 // to avoid _ftol2 bug
@@ -46,10 +48,10 @@ static void pfnDebugShowGeometryCollision( const NewtonBody *body, int vertexCou
 		p1.x = METER2INCH( points[i * 3 + 0] );
 		p1.z = METER2INCH( points[i * 3 + 1] );
 		p1.y = METER2INCH( points[i * 3 + 2] );
-#ifdef CLIENT_DLL 
+//#ifdef CLIENT_DLL 
 		glVertex3fv( p0 );
 		glVertex3fv( p1 );
-#endif 
+//#endif 
  		p0 = p1;
  	}
 } 
@@ -80,7 +82,7 @@ static void pfnApplyForce( const NewtonBody *m_pBody )
 	Vector	force( 0.0f, -9.8f * mass, 0.0f );
 
 	NewtonBodyAddForce( m_pBody, force ); 
-	NewtonBodyAddTorque( m_pBody, torque ); 
+	NewtonBodySetTorque( m_pBody, torque );
 }
 
 static void pfnApplyTransform( const NewtonBody *m_pBody, const float* src )
@@ -133,22 +135,13 @@ static void pfnApplyTransformPlayer(const NewtonBody* m_pBody, const float* src)
 	CBaseEntity* pObject = CBaseEntity::Instance(&pEdict->v);
 	if (!pObject) return;
 
-	//matrix4x4	m((float*)src);
-	//m = m.NewtonToQuake();
-
-	//Vector origin = m.GetOrigin();
-	//Vector angles = m.GetAngles();
-
-	matrix4x4	m;
-	NewtonBodyGetMatrix(pObject->m_pBody, m);
+	matrix4x4	m((float*)src);
 	m = m.NewtonToQuake();
-	m.SetOrigin(pObject->pev->origin);
-	m = m.QuakeToNewton();
-	NewtonBodySetMatrix(pObject->m_pBody, m);
 
-	ALERT(at_console, "pfnApplyTransformPlayer\n");
+	Vector origin = m.GetOrigin();
+	Vector angles = m.GetAngles();
 
-	/*// FIXME: detect studiomodels with reliable methods!
+	// FIXME: detect studiomodels with reliable methods!
 	if (*STRING(pObject->pev->model) != '*')
 	{
 		// stupid quake bug!!!
@@ -173,7 +166,7 @@ static void pfnApplyTransformPlayer(const NewtonBody* m_pBody, const float* src)
 	pObject->pev->avelocity.z = METER2INCH(avel.y);
 	pObject->pev->velocity.x = METER2INCH(vel.x);
 	pObject->pev->velocity.y = METER2INCH(vel.z);
-	pObject->pev->velocity.z = METER2INCH(vel.y);*/
+	pObject->pev->velocity.z = METER2INCH(vel.y);
 }
 
 /*
@@ -253,7 +246,7 @@ void CPhysic :: Update( float flTime )
 	{
 		NewtonUpdate( m_pWorld, flTime );
 	}
-
+	//DebugDraw();
 #ifdef _DEBUG
 	NewtonWorldForEachBodyDo( m_pWorld, pfnPrintStats );
 	ALERT( at_console, "Total Active Bodies %i\n", bodycount );
@@ -364,7 +357,7 @@ NewtonCollision *CPhysic :: CollisionFromStudio( entvars_t *pev, int modelindex 
 	}
 
 	mstudiobodyparts_t *pbodypart = (mstudiobodyparts_t *)((byte *)phdr + phdr->bodypartindex);
-	mstudiomodel_t *psubmodel = (mstudiomodel_t *)((byte *)phdr + pbodypart->modelindex);
+	mstudiomodel_t *psubmodel = (mstudiomodel_t *)((byte *)phdr + pbodypart->modelindex) + pev->body; //magic nipples - added pev->body to support body groups
 	Vector *pstudioverts = (Vector *)((byte *)phdr + psubmodel->vertindex);
 	Vector *verts = new Vector[psubmodel->numverts];	// allocate temporary vertices array
 	byte *pvertbone = ((byte *)phdr + psubmodel->vertinfoindex);
@@ -451,47 +444,52 @@ NewtonBody *CPhysic :: CreateBodyFromEntity( CBaseEntity *pObject )
 	return m_pBody;
 }
 
-NewtonBody* CPhysic::CreateBodyFromPlayer()// CBaseEntity* pObject)
+NewtonBody* CPhysic::CreateBodyFromStaticEntity(CBaseEntity* pObject)
 {
-	/*CBaseEntity* pPlayer = CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(1));
+	NewtonCollision* pCollision = CollisionFromEntity(pObject);
+	if (!pCollision) return NULL;
 
+	matrix4x4	m(pObject->pev->origin, pObject->pev->angles);
+	m = m.QuakeToNewton();
 
-	ALERT(at_console, "CollisionFromEntity: entity %i\n", pPlayer->entindex());
+	NewtonBody* m_pBody = NewtonCreateBody(m_pWorld, pCollision);
+	NewtonBodySetUserData(m_pBody, pObject->edict());
 
-	//NewtonCollision* pCollision = CollisionFromEntity(pPlayer);
-	//if (!pCollision) return NULL;
+	// move body into final position		
+	NewtonBodySetMatrix(m_pBody, m);
 
-	NewtonCollision* pCollision = CollisionFromStudio(pPlayer->pev, -1);
+	return m_pBody;
+}
 
-	ALERT(at_console, "FUCKWHY!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+NewtonBody* CPhysic::CreateBodyForPlayer(CBaseEntity* pObject)
+{
+	NewtonCollision* pCollision = CollisionFromEntity(pObject);
+	if (!pCollision) return NULL;
 
-	matrix4x4	m(pPlayer->pev->origin, pPlayer->pev->angles);
+	matrix4x4	m(pObject->pev->origin, pObject->pev->angles);
 	m = m.QuakeToNewton();
 
 	// convert size to physic;
 	Vector	size;
 
-	size.x = INCH2METER(pPlayer->pev->size.x);
-	size.y = INCH2METER(pPlayer->pev->size.y);
-	size.z = INCH2METER(pPlayer->pev->size.z);
+	size.x = INCH2METER(pObject->pev->size.x);
+	size.y = INCH2METER(pObject->pev->size.y);
+	size.z = INCH2METER(pObject->pev->size.z);
 
 	NewtonBody* m_pBody = NewtonCreateBody(m_pWorld, pCollision);
-	NewtonBodySetUserData(m_pBody, pPlayer->edict());
+	NewtonBodySetUserData(m_pBody, pObject->edict());
 
 	// mass based on brushsize
 	NewtonBodySetMassMatrix(m_pBody, DotProduct(size, size) * 9.8f, size.x, size.y, size.z); // 10 kg
 
 	// setup transform callbacks
 	NewtonBodySetTransformCallback(m_pBody, pfnApplyTransformPlayer);
-	//NewtonBodySetForceAndTorqueCallback(m_pBody, pfnApplyForce);
+	NewtonBodySetForceAndTorqueCallback(m_pBody, pfnApplyForce);
 
 	// move body into final position		
-	//NewtonBodySetMatrix(m_pBody, m);
+	NewtonBodySetMatrix(m_pBody, m);
 
-	ALERT(at_console, "finished CreateBodyFromPlayer\n");
-
-	return m_pBody;*/
-	return NULL;
+	return m_pBody;
 }
 
 NewtonBody *CPhysic :: RestoreBody( CBaseEntity *pObject )
@@ -549,6 +547,39 @@ NewtonBody *CPhysic :: RestoreBody( CBaseEntity *pObject )
 
 	return m_pBody;
 }
+
+NewtonBody* CPhysic::RestoreStaticBody(CBaseEntity* pObject)
+{
+	NewtonCollision* pCollision = CollisionFromEntity(pObject);
+	if (!pCollision) return NULL;
+
+	// convert size to physic;
+	Vector	size;
+
+	size.x = INCH2METER(pObject->pev->size.x);
+	size.y = INCH2METER(pObject->pev->size.y);
+	size.z = INCH2METER(pObject->pev->size.z);
+
+	NewtonBody* m_pBody = NewtonCreateBody(m_pWorld, pCollision);
+	NewtonBodySetUserData(m_pBody, pObject->edict());
+
+	Vector angles = pObject->pev->angles;
+
+	// FIXME: detect studiomodels with reliable methods!
+	if (*STRING(pObject->pev->model) != '*')
+	{
+		// stupid quake bug!!!
+		angles[PITCH] = -angles[PITCH];
+	}
+
+	matrix4x4	m(pObject->pev->origin, angles);
+	m = m.QuakeToNewton();
+
+	// move body into final position		
+	NewtonBodySetMatrix(m_pBody, m);
+
+	return m_pBody;
+}
 	
 void CPhysic :: RemoveBody( edict_t *pEdict )
 {
@@ -599,6 +630,22 @@ void CPhysic :: SetVelocity( CBaseEntity *pEntity, const Vector &velocity )
 	vel.z = INCH2METER( velocity.y );
 
 	NewtonBodySetVelocity( pEntity->m_pBody, vel );
+}
+
+void CPhysic::SetOmega(CBaseEntity* pEntity, const Vector& omega)
+{
+	if (!pEntity || !pEntity->m_pBody)
+		return;
+
+	NewtonBodySetOmega(pEntity->m_pBody, omega);
+}
+
+void CPhysic::Freeze(CBaseEntity* pEntity)
+{
+	if (!pEntity || !pEntity->m_pBody)
+		return;
+
+	NewtonWorldFreezeBody(m_pWorld, pEntity->m_pBody);
 }
 
 int CPhysic :: CheckBINFile ( char *szMapName )
@@ -1103,7 +1150,9 @@ void CPhysic :: FreeBSPFile( void )
 		// NOTE: for some reasons physic engine produce degenerate convex hulls for many duplicated vertices
 		// so we need filter them manually
 		ALERT( at_console, "Create hull for model *%i, allocate %i/%i vertices\n", modelNum, numVerts, totalVerts );
-		bmodels[modelNum] = NewtonCreateConvexHull( m_pWorld, numVerts, (float *)&verts[0][0], 12, NULL );
+
+		if(numVerts != 0) //magic nipples - clip, null, aaatrigger cause a crash because the faces are deleted. This is a partial fix till I can add in clipnodes.
+			bmodels[modelNum] = NewtonCreateConvexHull( m_pWorld, numVerts, (float *)&verts[0][0], 12, NULL );
 
 		delete [] verts;
 
@@ -1170,7 +1219,7 @@ int CPhysic :: BuildCollisionTree( char *szMapName )
 
 void CPhysic :: DebugDraw( void  ) 
 { 
-#ifdef CLIENT_DLL
+//#ifdef CLIENT_DLL
 	glDisable( GL_TEXTURE_2D ); 
 	glColor3f( 1, 0.7f, 0 );
 	glBegin( GL_LINES );
@@ -1179,7 +1228,7 @@ void CPhysic :: DebugDraw( void  )
 
 	glEnd(); 
 	glEnable( GL_TEXTURE_2D );
-#endif
+//#endif
 }
 
 ////////////// SIMPLE PHYSIC ENTITY //////////////
@@ -1209,5 +1258,26 @@ public:
 		return TRUE;
 	} 
 };
-LINK_ENTITY_TO_CLASS( func_physbox, CPhysEntity );
 LINK_ENTITY_TO_CLASS( prop_physics, CPhysEntity );
+
+
+class CPhysBmodel : public CBaseEntity
+{
+public:
+	void Spawn(void)
+	{
+		pev->movetype = MOVETYPE_NONE;	// can'be apply velocity but ignore collisions
+		pev->solid = SOLID_CUSTOM;		// not solidity
+
+		SET_MODEL(ENT(pev), STRING(pev->model));
+		UTIL_SetOrigin(pev, pev->origin);
+
+		// motor!
+		m_pBody = WorldPhysic.CreateBodyFromEntity(this);
+	}
+	virtual int IsRigidBody(void)
+	{
+		return TRUE;
+	}
+};
+LINK_ENTITY_TO_CLASS(func_physbox, CPhysBmodel);

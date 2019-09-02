@@ -172,6 +172,25 @@ void CMP5::PrimaryAttack()
 		vecDir = m_pPlayer->FireBulletsPlayer( 1, vecSrc, vecAiming, VECTOR_CONE_3DEGREES, 8192, BULLET_PLAYER_MP5, 2, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 	}
 
+	switch (RANDOM_LONG(0, 3))
+	{
+	case 0:
+		m_pPlayer->pev->vuser3 = { -25, 15, 0 };
+		break;
+
+	case 1:
+		m_pPlayer->pev->vuser3 = { -25, 0, 0 };
+		break;
+
+	case 2:
+		m_pPlayer->pev->vuser3 = { -1, 0, 0 };
+		break;
+
+	case 3:
+		m_pPlayer->pev->vuser3 = { -1, -15, 0 };
+		break;
+	}
+
   int flags;
 #if defined( CLIENT_WEAPONS )
 	flags = FEV_NOTHOST;
@@ -228,6 +247,8 @@ void CMP5::SecondaryAttack( void )
 	CGrenade::ShootContact( m_pPlayer->pev, 
 							m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 16, 
 							gpGlobals->v_forward * 800 );
+
+	m_pPlayer->pev->vuser3 = { -125, 20, 20 };
 
 	int flags;
 #if defined( CLIENT_WEAPONS )

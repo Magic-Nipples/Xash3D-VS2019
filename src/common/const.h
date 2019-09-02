@@ -93,6 +93,8 @@
 #define SOLID_CUSTOM		5	// call external callbacks for tracing
 #define SOLID_PORTAL		6	// borrowed from FTE
 
+#define SOLID_PHYSICS		7	// call external callbacks for tracing
+
 // edict->deadflag values
 #define DEAD_NO			0 	// alive
 #define DEAD_DYING			1 	// playing death animation or still falling off of a ledge waiting to hit ground

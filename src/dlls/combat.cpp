@@ -534,10 +534,11 @@ void CBaseMonster::BecomeDead( void )
 
 BOOL CBaseMonster::ShouldGibMonster( int iGib )
 {
-	if ( ( iGib == GIB_NORMAL && pev->health < GIB_HEALTH_VALUE ) || ( iGib == GIB_ALWAYS ) )
+	/*if ( ( iGib == GIB_NORMAL && pev->health < GIB_HEALTH_VALUE ) || ( iGib == GIB_ALWAYS ) )
 		return TRUE;
 	
-	return FALSE;
+	return FALSE;*/
+	return TRUE;
 }
 
 
@@ -685,8 +686,14 @@ void CGib :: WaitTillLand ( void )
 		UTIL_Remove( this );
 		return;
 	}
+	pev->movetype = MOVETYPE_NONE;	// can'be apply velocity but ignore collisions
+	pev->solid = SOLID_CUSTOM;		// not solidity
+	m_pBody = WorldPhysic.CreateBodyFromEntity(this);
 
-	if ( pev->velocity == g_vecZero )
+	WorldPhysic.SetVelocity(this, pev->velocity);
+	SetThink(NULL);
+
+	/*if ( pev->velocity == g_vecZero )
 	{
 		SetThink (&CGib::SUB_StartFadeOut);
 		pev->nextthink = gpGlobals->time + m_lifeTime;
@@ -702,7 +709,7 @@ void CGib :: WaitTillLand ( void )
 	{
 		// wait and check again in another half second.
 		pev->nextthink = gpGlobals->time + 0.5;
-	}
+	}*/
 }
 
 //
@@ -795,10 +802,12 @@ void CGib :: Spawn( const char *szGibModel )
 	SET_MODEL(ENT(pev), szGibModel);
 	UTIL_SetSize(pev, Vector( 0, 0, 0), Vector(0, 0, 0));
 
-	pev->nextthink = gpGlobals->time + 4;
+	//pev->nextthink = gpGlobals->time + 4;
+
+	pev->nextthink = gpGlobals->time + 0.1;
 	m_lifeTime = 25;
 	SetThink ( &CGib::WaitTillLand );
-	SetTouch ( &CGib::BounceGibTouch );
+	//SetTouch ( &CGib::BounceGibTouch );
 
 	m_material = matNone;
 	m_cBloodDecals = 5;// how many blood decals this gib can place (1 per bounce until none remain). 

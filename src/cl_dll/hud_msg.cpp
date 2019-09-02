@@ -21,6 +21,7 @@
 #include "parsemsg.h"
 #include "r_efx.h"
 #include "rain.h" //magic nipples - rain
+#include "tri_rope.h" //magic nipples - ropes
 
 #define MAX_CLIENTS 32
 
@@ -90,6 +91,7 @@ void CHud :: MsgFunc_InitHUD( const char *pszName, int iSize, void *pbuf )
 	pBeam = pBeam2 = NULL;
 
 	m_Lensflare.SunEnabled = FALSE; //magic nipples - lensflare
+	gRopeRender.ResetRopes(); //magic nipples - ropes
 }
 
 
@@ -194,4 +196,24 @@ int CHud::MsgFunc_AddELight(const char* pszName, int iSize, void* pbuf)
 		dl->color.b = READ_BYTE();
 	}
 	return 1;
+}
+
+void CHud::MsgFunc_AddRope(const char* pszName, int iSize, void* pbuf) //magic nipples - ropes
+{
+	BEGIN_READ(pbuf, iSize);
+
+	vec3_t start_source;
+	vec3_t end_source;
+
+	start_source.x = READ_COORD();
+	start_source.y = READ_COORD();
+	start_source.z = READ_COORD();
+
+	end_source.x = READ_COORD();
+	end_source.y = READ_COORD();
+	end_source.z = READ_COORD();
+
+	char* datafile = READ_STRING();
+
+	gRopeRender.CreateRope(datafile, start_source, end_source);
 }

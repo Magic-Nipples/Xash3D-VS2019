@@ -71,6 +71,7 @@ convar_t	*r_dynamic;
 convar_t	*r_lightmap;
 convar_t	*r_overbright; //magic nipples - overbright
 convar_t	*gl_allow_mirrors; //Magic Nipples - readding mirrors
+convar_t	*r_lighting_lambert;
 
 //magic nipples - new bloom
 convar_t	*r_bloom;				//1
@@ -1630,6 +1631,7 @@ void GL_InitCommands( void )
 	//magic nipples - down sampling
 	r_downsample = Cvar_Get("r_downsample", "0", FCVAR_ARCHIVE, "");
 	r_downsample_size = Cvar_Get("r_downsample_size", "0.5", FCVAR_ARCHIVE, "");
+	r_lighting_lambert = Cvar_Get("r_lighting_lambert", "1.495", FCVAR_ARCHIVE, "");
 
 	gl_allow_mirrors = Cvar_Get("gl_allow_mirrors", "1", FCVAR_ARCHIVE, "allow to draw mirror surfaces"); //Magic Nipples - readding mirrors
 

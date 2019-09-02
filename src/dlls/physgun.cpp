@@ -206,9 +206,10 @@ void CPHISGUN::WeaponIdle( void )
 		if ((vecDest1 - pCapture->pev->origin).Length() > 85)
 			velocityFinal = (vecDest1 - pCapture->pev->origin).Normalize() * 550;
 
-		//WorldPhysic.
+
 		WorldPhysic.SetVelocity(pCapture, velocityFinal);
 
+		//UTIL_SetOrigin(pCapture->pev, vecDest1);
 		//WorldPhysic.SetOrigin(pCapture, vecDest1);
 	}
 }

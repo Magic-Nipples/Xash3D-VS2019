@@ -160,6 +160,17 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 		vecAiming = gpGlobals->v_forward;
 	}
 
+	switch (RANDOM_LONG(0, 1))
+	{
+	case 0:
+		m_pPlayer->pev->vuser3 = { -22, 0, 0 };
+		break;
+
+	case 1:
+		m_pPlayer->pev->vuser3 = { -20, 0, 0 };
+		break;
+	}
+
 	Vector vecDir;
 	vecDir = m_pPlayer->FireBulletsPlayer( 1, vecSrc, vecAiming, Vector( flSpread, flSpread, flSpread ), 8192, BULLET_PLAYER_9MM, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 

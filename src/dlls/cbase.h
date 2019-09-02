@@ -160,6 +160,7 @@ public:
 	virtual int		ObjectCaps( void ) { return FCAP_ACROSS_TRANSITION; }
 	virtual void	Activate( void ) {}
 	virtual int		IsRigidBody( void ) { return FALSE; } //newton
+	virtual int		IsStaticBody( void ) { return FALSE; } //newton
 	
 	// Setup the object->object collision box (pev->mins / pev->maxs is the object->world collision box)
 	virtual void	SetObjectCollisionBox( void );

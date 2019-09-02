@@ -17,6 +17,7 @@
 # Visual Studio files
 *.user
 *.aps
+*.log
 
 # Precompiled Headers
 *.gch
@@ -40,4 +41,3 @@
 *.exe
 *.out
 *.app
-src/cl_dll/inputw32 -1.cpp

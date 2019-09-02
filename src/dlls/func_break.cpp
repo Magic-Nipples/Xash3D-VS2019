@@ -178,7 +178,16 @@ void CBreakable::Spawn( void )
 	// Flag unbreakable glass as "worldbrush" so it will block ALL tracelines
 	if ( !IsBreakable() && pev->rendermode != kRenderNormal )
 		pev->flags |= FL_WORLDBRUSH;
+
+	//m_pBody = WorldPhysic.CreateBodyFromStaticEntity(this);
+	//pev->nextthink = gpGlobals->time + 0.01;
 }
+
+/*void CBreakable::Think(void)
+{
+	WorldPhysic.SetOrigin(this, pev->origin);
+	pev->nextthink = gpGlobals->time;
+}*/
 
 
 const char *CBreakable::pSoundsWood[] = 
@@ -525,6 +534,16 @@ void CBreakable::TraceAttack( entvars_t *pevAttacker, float flDamage, Vector vec
 		}
 	}
 
+	if (pev->health <= 0)
+	{
+		ALERT(at_console, "DIEEEEE\n");
+		//if (m_pBody)
+		{
+			WorldPhysic.RemoveBody(m_pBody);
+			//m_pBody = NULL;
+		}
+	}
+
 	CBaseDelay::TraceAttack( pevAttacker, flDamage, vecDir, ptr, bitsDamageType );
 }
 
@@ -786,6 +805,10 @@ class CPushable : public CBreakable
 {
 public:
 	void	Spawn ( void );
+
+	void EXPORT Think(void);
+	virtual int	IsStaticBody(void) { return TRUE; }
+
 	void	Precache( void );
 	void	Touch ( CBaseEntity *pOther );
 	void	Move( CBaseEntity *pMover, int push );
@@ -824,30 +847,39 @@ LINK_ENTITY_TO_CLASS( func_pushable, CPushable );
 char *CPushable :: m_soundNames[3] = { "debris/pushbox1.wav", "debris/pushbox2.wav", "debris/pushbox3.wav" };
 
 
-void CPushable :: Spawn( void )
+void CPushable::Spawn(void)
 {
-	if ( pev->spawnflags & SF_PUSH_BREAKABLE )
+	if (pev->spawnflags & SF_PUSH_BREAKABLE)
 		CBreakable::Spawn();
 	else
-		Precache( );
+		Precache();
 
-	pev->movetype	= MOVETYPE_PUSHSTEP;
-	pev->solid		= SOLID_BBOX;
-	SET_MODEL( ENT(pev), STRING(pev->model) );
+	pev->movetype = MOVETYPE_PUSHSTEP;
+	pev->solid = SOLID_BBOX;
+	SET_MODEL(ENT(pev), STRING(pev->model));
 
-	if ( pev->friction > 399 )
+	if (pev->friction > 399)
 		pev->friction = 399;
 
 	m_maxSpeed = 400 - pev->friction;
-	SetBits( pev->flags, FL_FLOAT );
+	SetBits(pev->flags, FL_FLOAT);
 	pev->friction = 0;
-	
+
 	pev->origin.z += 1;	// Pick up off of the floor
-	UTIL_SetOrigin( pev, pev->origin );
+	UTIL_SetOrigin(pev, pev->origin);
 
 	// Multiply by area of the box's cross-section (assume 1000 units^3 standard volume)
-	pev->skin = ( pev->skin * (pev->maxs.x - pev->mins.x) * (pev->maxs.y - pev->mins.y) ) * 0.0005;
+	pev->skin = (pev->skin * (pev->maxs.x - pev->mins.x) * (pev->maxs.y - pev->mins.y)) * 0.0005;
 	m_soundTime = 0;
+
+	m_pBody = WorldPhysic.CreateBodyFromStaticEntity(this);
+	pev->nextthink = gpGlobals->time + 0.01;
+}
+
+void CPushable::Think(void)
+{
+	WorldPhysic.SetOrigin(this, pev->origin);
+	pev->nextthink = gpGlobals->time;
 }
 
 
@@ -918,6 +950,12 @@ void CPushable :: Touch( CBaseEntity *pOther )
 {
 	if ( FClassnameIs( pOther->pev, "worldspawn" ) )
 		return;
+
+	if (pOther->m_pBody)
+	{
+		WorldPhysic.SetVelocity(pOther, pev->velocity);
+		//ALERT(at_console, "pushable %f physics %f\n", pev->velocity.Length(), pOther->pev->velocity.Length());
+	}
 
 	Move( pOther, 1 );
 }

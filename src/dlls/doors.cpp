@@ -38,6 +38,8 @@ public:
 	virtual void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 	virtual void Blocked( CBaseEntity *pOther );
 
+	virtual int	IsStaticBody(void) { return TRUE; }
+
 
 	virtual int	ObjectCaps( void ) 
 	{ 
@@ -321,6 +323,9 @@ void CBaseDoor::Spawn( )
 	}
 	else // touchable button
 		SetTouch( &CBaseDoor::DoorTouch );
+
+	if (!FClassnameIs(pev, "func_water"))
+		m_pBody = WorldPhysic.CreateBodyFromStaticEntity(this);
 }
  
 
@@ -575,6 +580,12 @@ void CBaseDoor::DoorGoUp( void )
 		if ( m_toggle_state != TS_GOING_UP && m_toggle_state != TS_GOING_DOWN )
 			EMIT_SOUND(ENT(pev), CHAN_STATIC, (char*)STRING(pev->noiseMoving), 1, ATTN_NORM);
 	}
+	
+	if (m_pBody)
+	{
+		WorldPhysic.RemoveBody(m_pBody);
+		m_pBody = NULL;
+	}
 
 	m_toggle_state = TS_GOING_UP;
 	
@@ -619,6 +630,9 @@ void CBaseDoor::DoorHitTop( void )
 		EMIT_SOUND(ENT(pev), CHAN_STATIC, (char*)STRING(pev->noiseArrived), 1, ATTN_NORM);
 	}
 
+	if (!m_pBody)
+		m_pBody = WorldPhysic.CreateBodyFromStaticEntity(this);
+
 	ASSERT(m_toggle_state == TS_GOING_UP);
 	m_toggle_state = TS_AT_TOP;
 	
@@ -659,6 +673,12 @@ void CBaseDoor::DoorGoDown( void )
 		if ( m_toggle_state != TS_GOING_UP && m_toggle_state != TS_GOING_DOWN )
 			EMIT_SOUND(ENT(pev), CHAN_STATIC, (char*)STRING(pev->noiseMoving), 1, ATTN_NORM);
 	}
+
+	if (m_pBody)
+	{
+		WorldPhysic.RemoveBody(m_pBody);
+		m_pBody = NULL;
+	}
 	
 #ifdef DOOR_ASSERT
 	ASSERT(m_toggle_state == TS_AT_TOP);
@@ -682,6 +702,9 @@ void CBaseDoor::DoorHitBottom( void )
 		STOP_SOUND(ENT(pev), CHAN_STATIC, (char*)STRING(pev->noiseMoving) );
 		EMIT_SOUND(ENT(pev), CHAN_STATIC, (char*)STRING(pev->noiseArrived), 1, ATTN_NORM);
 	}
+
+	if (!m_pBody)
+		m_pBody = WorldPhysic.CreateBodyFromStaticEntity(this);
 
 	ASSERT(m_toggle_state == TS_GOING_DOWN);
 	m_toggle_state = TS_AT_BOTTOM;
@@ -818,6 +841,8 @@ class CRotDoor : public CBaseDoor
 public:
 	void Spawn( void );
 	virtual void SetToggleState( int state );
+
+	virtual int	IsStaticBody(void) { return TRUE; }
 };
 
 LINK_ENTITY_TO_CLASS( func_door_rotating, CRotDoor );
@@ -870,6 +895,8 @@ void CRotDoor::Spawn( void )
 	}
 	else // touchable button
 		SetTouch( &CRotDoor::DoorTouch );
+
+	m_pBody = WorldPhysic.CreateBodyFromStaticEntity(this);
 }
 
 

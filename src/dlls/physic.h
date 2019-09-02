@@ -74,22 +74,29 @@ public:
 	void		Update( float flTime );
 	void		RemoveBody( edict_t *pEdict );
 	void		RemoveBody( const NewtonBody *pBody );
-	NewtonBody	*CreateBodyFromEntity( CBaseEntity *pEntity );
-	NewtonBody	*RestoreBody( CBaseEntity *pEntity );
-	void		SetOrigin( CBaseEntity *pEntity, const Vector &origin );
-	void		SetVelocity( CBaseEntity *pEntity, const Vector &velocity );
-	int	FLoadTree( char *szMapName );
-	int	FSaveTree( char *szMapName );
-	int	CheckBINFile( char *szMapName );
-	int	BuildCollisionTree( char *szMapName );
-	int	FReadFromMemory( byte *handle, void *buffer, long size );
-	void	SetupWorld( void );	
-	void	DebugDraw( void );		// FIXME: add project to client
-	int		LoadBSPFile( const char *szFilename );
-	void	FreeBSPFile( void );
-	void	FreeAllBodies( void );
 
-	NewtonBody* CreateBodyFromPlayer();// CBaseEntity* pEntity);
+	NewtonBody* CreateBodyFromEntity(CBaseEntity* pEntity);
+	NewtonBody* CreateBodyFromStaticEntity(CBaseEntity* pEntity);
+	NewtonBody* CreateBodyForPlayer(CBaseEntity* pEntity);
+
+	NewtonBody* RestoreBody(CBaseEntity* pEntity);
+	NewtonBody* RestoreStaticBody(CBaseEntity* pEntity);
+
+	void		SetOrigin(CBaseEntity* pEntity, const Vector& origin);
+	void		SetVelocity(CBaseEntity* pEntity, const Vector& velocity);
+	void		SetOmega(CBaseEntity* pEntity, const Vector& omega);
+	void		Freeze(CBaseEntity* pEntity);
+
+	int		FLoadTree(char* szMapName);
+	int		FSaveTree(char* szMapName);
+	int		CheckBINFile(char* szMapName);
+	int		BuildCollisionTree(char* szMapName);
+	int		FReadFromMemory(byte* handle, void* buffer, long size);
+	void	SetupWorld(void);
+	void	DebugDraw(void);		// FIXME: add project to client
+	int		LoadBSPFile(const char* szFilename);
+	void	FreeBSPFile(void);
+	void	FreeAllBodies(void);
 
 private:
 	// physics bsp loader

@@ -1688,6 +1688,10 @@ R_StudioDynamicLight
 
 ===============
 */
+#define AMBIENT_INSUN 0.2f
+#define AMBIENT_VERTSYS 0.35f
+#define AMBIENT 0.2f
+
 void R_StudioDynamicLight( cl_entity_t *ent, alight_t *plight )
 {
 	movevars_t	*mv = &clgame.movevars;
@@ -1747,6 +1751,8 @@ void R_StudioDynamicLight( cl_entity_t *ent, alight_t *plight )
 		if( FBitSet( ent->model->flags, STUDIO_FORCE_SKYLIGHT ) || ( psurf && FBitSet( psurf->flags, SURF_DRAWSKY )))
 		{
 			VectorSet( lightDir, mv->skyvec_x, mv->skyvec_y, mv->skyvec_z );
+
+			//VectorScale(lightDir, 1.3, lightDir); //magic_nipples - increase the ambient shadowing
 
 			light.r = LightToTexGamma( bound( 0, mv->skycolor_r, 255 ));
 			light.g = LightToTexGamma( bound( 0, mv->skycolor_g, 255 ));
@@ -1847,45 +1853,75 @@ void R_StudioDynamicLight( cl_entity_t *ent, alight_t *plight )
 
 	if (r_lighting_interp->value <= 0)
 	{
-		plight->shadelight = VectorLength(lightDir);
-		plight->ambientlight = total - plight->shadelight;
+		if (r_elightsys->value > 0)
+		{
+			if (isSun == 1)
+			{
+				plight->shadelight = (float)(VectorLength(lightDir));
+				plight->ambientlight = AMBIENT_INSUN;
+			}
+			else
+			{
+				plight->shadelight = 0;
+				plight->ambientlight = (float)(VectorLength(lightDir) * AMBIENT_VERTSYS);
+			}
+		}
+		else
+		{
+			plight->shadelight = (float)(VectorLength(lightDir));
+			plight->ambientlight = (float)(VectorLength(lightDir) * AMBIENT);
+		}
+		//plight->ambientlight = total - plight->shadelight;
 	}
 	else
 	{
 		if (ent->ltTime == 0)
 		{
-			if ( (r_elightsys->value > 0) && (isSun == 0) )
-			{	
-				plight->shadelight = 0;
-				plight->ambientlight = (float)(VectorLength(lightDir) * 0.2f);
-
-				ent->flStartShade = ent->flFinalShade = 0;
-				plight->ambientlight = ent->flFinalAmbient = (float)(VectorLength(lightDir) * 0.2f);	
+			if (r_elightsys->value > 0)
+			{
+				if (isSun == 1)
+				{
+					ent->flStartShade = ent->flFinalShade = plight->shadelight = (float)(VectorLength(lightDir));
+					ent->flStartAmbient = ent->flFinalAmbient = plight->ambientlight = AMBIENT_INSUN;
+				}
+				else
+				{
+					ent->flStartShade = ent->flFinalShade = plight->shadelight = 0;
+					ent->flStartAmbient = ent->flFinalAmbient = plight->ambientlight = (float)(VectorLength(lightDir) * AMBIENT_VERTSYS);
+				}
 			}
 			else
 			{
-				plight->shadelight = VectorLength(lightDir);
-				plight->ambientlight = (float)(VectorLength(lightDir) * 0.2f);
-
-				ent->flStartShade = ent->flFinalShade = VectorLength(lightDir);
-				plight->ambientlight = ent->flFinalAmbient = (float)(VectorLength(lightDir) * 0.2f);
+				ent->flStartShade = ent->flFinalShade = plight->shadelight = (float)(VectorLength(lightDir));
+				ent->flStartAmbient = ent->flFinalAmbient = plight->ambientlight = (float)(VectorLength(lightDir) * AMBIENT);
 			}
 		}
 		else
 		{
-			if ((r_elightsys->value > 0) && (isSun == 0))
-				ent->flFinalShade = SmoothValues(ent->flStartShade, 0, ent->flFinalShade, g_studio.frametime + r_shade_speed->value);
+			if (r_elightsys->value > 0)
+			{
+				if (isSun == 1)
+				{
+					ent->flFinalShade = SmoothValues(ent->flStartShade, (float)(VectorLength(lightDir)), ent->flFinalShade, g_studio.frametime + r_shade_speed->value);
+					ent->flFinalAmbient = SmoothValues(ent->flStartAmbient, AMBIENT_INSUN, ent->flFinalAmbient, g_studio.frametime + r_shade_speed->value);
+				}
+				else
+				{
+					ent->flFinalShade = SmoothValues(ent->flStartShade, 0, ent->flFinalShade, g_studio.frametime + r_shade_speed->value);
+					ent->flFinalAmbient = SmoothValues(ent->flStartAmbient, (float)(VectorLength(lightDir) * AMBIENT_VERTSYS), ent->flFinalAmbient, g_studio.frametime + r_shade_speed->value);
+				}
+			}
 			else
+			{
 				ent->flFinalShade = SmoothValues(ent->flStartShade, (float)(VectorLength(lightDir)), ent->flFinalShade, g_studio.frametime + r_shade_speed->value);
-
-			ent->flStartShade = ent->flFinalShade;
-			plight->shadelight = ent->flFinalShade;
-
-			//ent->flFinalAmbient = SmoothValues(ent->flStartAmbient, (float)(total - plight->shadelight), ent->flFinalAmbient, g_studio.frametime + r_shade_speed->value); //dont like this method
-			ent->flFinalAmbient = SmoothValues(ent->flStartAmbient, (float)(VectorLength(lightDir) * 0.2f), ent->flFinalAmbient, g_studio.frametime + r_shade_speed->value);
-			ent->flStartAmbient = ent->flFinalAmbient;
-			plight->ambientlight = ent->flFinalAmbient;
+				ent->flFinalAmbient = SmoothValues(ent->flStartAmbient, (float)(VectorLength(lightDir) * AMBIENT), ent->flFinalAmbient, g_studio.frametime + r_shade_speed->value);
+			}
 		}
+		ent->flStartShade = ent->flFinalShade;
+		plight->shadelight = ent->flFinalShade;
+
+		ent->flStartAmbient = ent->flFinalAmbient;
+		plight->ambientlight = ent->flFinalAmbient;
 	}
 	//plight->shadelight = 0.0; //TESTTEST
 	//plight->ambientlight = 0.0;
@@ -2132,7 +2168,7 @@ void R_StudioLighting( float *lv, int bone, int flags, vec3_t normal )
 
 		illum += g_studio.shadelight;
 
-		r = SHADE_LAMBERT;
+		r = r_lighting_lambert->value;//SHADE_LAMBERT;
 
  		// do modified hemispherical lighting
 		if( r <= 1.0f )

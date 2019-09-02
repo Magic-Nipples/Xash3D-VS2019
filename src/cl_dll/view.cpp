@@ -719,7 +719,7 @@ void V_CalcNormalRefdef ( struct ref_params_s *pparams )
 	view->angles[PITCH] -= bob * 0.3;
 
 	
-	if (pparams->waterlevel > 2)
+	/*if (pparams->waterlevel > 2)
 	{
 		flDelta += (M_PI / 120) * (pparams->frametime * 35);
 		if (flDelta >= M_PI)
@@ -744,7 +744,7 @@ void V_CalcNormalRefdef ( struct ref_params_s *pparams )
 
 	pparams->viewangles[ROLL] += 6 * sin(flDelta);
 	pparams->viewangles[YAW] += 6 * sin(flDelta1);
-	pparams->viewangles[PITCH] += 6 * sin(flDelta1);
+	pparams->viewangles[PITCH] += 6 * sin(flDelta1);*/
 
 	VectorCopy(view->angles, view->curstate.angles); //Magic Nipples - restore original view bob
 

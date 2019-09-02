@@ -25,6 +25,10 @@ class CBreakable : public CBaseDelay
 public:
 	// basic functions
 	void Spawn( void );
+
+	//void EXPORT Think(void);
+	virtual int	IsStaticBody(void) { return TRUE; }
+
 	void Precache( void );
 	void KeyValue( KeyValueData* pkvd);
 	void EXPORT BreakTouch( CBaseEntity *pOther );

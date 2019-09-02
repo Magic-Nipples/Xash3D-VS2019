@@ -38,7 +38,7 @@ extern byte	*r_temppool;
 #define MAX_MIRRORS		32	// per one frame! //Magic Nipples - readding mirrors
 
 #define SHADEDOT_QUANT 	16		// precalculated dot products for quantized angles
-#define SHADE_LAMBERT	1.495f
+//#define SHADE_LAMBERT	1.495f
 #define DEFAULT_ALPHATEST	0.0f
 
 // refparams
@@ -738,5 +738,7 @@ extern convar_t* r_downsample_size;
 
 extern convar_t* gl_allow_mirrors; //Magic Nipples - readding mirrors
 extern convar_t* r_overbright; //magic nipples - overbright
+
+extern convar_t* r_lighting_lambert;
 
 #endif//GL_LOCAL_H

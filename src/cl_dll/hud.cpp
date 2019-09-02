@@ -31,7 +31,7 @@
 #include "demo_api.h"
 #include "vgui_scorepanel.h"
 #include "rain.h" //magic nipples - rain
-
+#include "tri_rope.h" //magic nipples - ropes
 
 
 class CHLVoiceStatusHelper : public IVoiceStatusHelper
@@ -139,6 +139,12 @@ int __MsgFunc_RainData(const char* pszName, int iSize, void* pbuf) //magic nippl
 int __MsgFunc_AddELight(const char* pszName, int iSize, void* pbuf) //magic nipples - elights
 {
 	return gHUD.MsgFunc_AddELight(pszName, iSize, pbuf);
+}
+
+int __MsgFunc_AddRope(const char* pszName, int iSize, void* pbuf) //magic nipples - ropes
+{
+	gHUD.MsgFunc_AddRope(pszName, iSize, pbuf);
+	return 1;
 }
 
 // TFFree Command Menu
@@ -314,6 +320,7 @@ void CHud :: Init( void )
 	HOOK_MESSAGE( SetFog ); //LRC - the fogging fog
 	HOOK_MESSAGE( RainData ); //magic nipples - rain
 	HOOK_MESSAGE( AddELight ); //magic nipples - elights
+	HOOK_MESSAGE(AddRope); //magic nipples - ropes
 
 	HOOK_MESSAGE( Spectator );
 	HOOK_MESSAGE( AllowSpec );
@@ -335,6 +342,7 @@ void CHud :: Init( void )
 	cl_lw = gEngfuncs.pfnGetCvarPointer( "cl_lw" );
 	RainInfo = gEngfuncs.pfnRegisterVariable("cl_raininfo", "0", 0); //magic nipples - rain
 	CVAR_CREATE("cl_sunflarespeed", "7", 0);
+	CVAR_CREATE("cl_drawropes", "1", FCVAR_ARCHIVE); //magic nipples - ropes
 
 	CVAR_CREATE("cl_speedcap", "1", FCVAR_ARCHIVE);
 

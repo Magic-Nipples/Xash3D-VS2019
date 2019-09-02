@@ -55,6 +55,7 @@ class CFuncWall : public CBaseEntity
 public:
 	void	Spawn( void );
 	void	Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
+	virtual int	IsStaticBody(void) { return TRUE; }
 
 	// Bmodels don't go across transitions
 	virtual int	ObjectCaps( void ) { return CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
@@ -71,6 +72,9 @@ void CFuncWall :: Spawn( void )
 	
 	// If it can't move/go away, it's really part of the world
 	pev->flags |= FL_WORLDBRUSH;
+
+	// motor!
+	m_pBody = WorldPhysic.CreateBodyFromStaticEntity(this);
 }
 
 
@@ -288,6 +292,8 @@ public:
 	virtual int	ObjectCaps( void ) { return CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
 	virtual int		Save( CSave &save );
 	virtual int		Restore( CRestore &restore );
+
+	virtual int		IsStaticBody(void) { return TRUE; }
 	
 	static	TYPEDESCRIPTION m_SaveData[];
 
@@ -441,6 +447,8 @@ void CFuncRotating :: Spawn( )
 	}
 	
 	Precache( );
+
+	m_pBody = WorldPhysic.CreateBodyFromStaticEntity(this);
 }
 
 
@@ -652,6 +660,12 @@ void CFuncRotating :: SpinDown( void )
 
 void CFuncRotating :: Rotate( void )
 {
+	Vector avelocityphys;
+	avelocityphys.x = INCH2METER(pev->avelocity.x * -1);
+	avelocityphys.y = INCH2METER(pev->avelocity.y * -1);
+	avelocityphys.z = INCH2METER(pev->avelocity.z * -1);
+	WorldPhysic.SetOmega(this, avelocityphys);
+
 	pev->nextthink = pev->ltime + 10;
 }
 

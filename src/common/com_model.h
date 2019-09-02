@@ -346,8 +346,8 @@ typedef struct model_s
 
 typedef struct alight_s
 {
-	int		ambientlight;	// clip at 128
-	int		shadelight;	// clip at 192 - ambientlight
+	float		ambientlight;	// clip at 128				//int		ambientlight;	// clip at 128
+	float		shadelight;	// clip at 192 - ambientlight	//int		shadelight;	// clip at 192 - ambientlight
 	vec3_t		color;
 	float		*plightvec;
 } alight_t;

@@ -2790,7 +2790,42 @@ PM_DropPunchAngle
 
 =============
 */
-void PM_DropPunchAngle ( vec3_t punchangle )
+#define PUNCH_DAMPING		5.0f		// bigger number makes the response more damped, smaller is less damped
+										// currently the system will overshoot, with larger damping values it won't
+#define PUNCH_SPRING_CONSTANT	55.0f	// bigger number increases the speed at which the view corrects
+
+#define clamp( val, min, max ) ( ((val) > (max)) ? (max) : ( ((val) < (min)) ? (min) : (val) ) )
+
+void PM_DropPunchAngle(vec3_t punchangle)
+{
+	float damping;
+	float springForceMagnitude;
+
+	if (Length(punchangle) > 0.001 || Length(pmove->vuser3) > 0.001)
+	{
+		VectorMA(punchangle, pmove->frametime, pmove->vuser3, punchangle);
+		damping = 1 - (PUNCH_DAMPING * pmove->frametime);
+
+		if (damping < 0)
+		{
+			damping = 0;
+		}
+		VectorScale(pmove->vuser3, damping, pmove->vuser3);
+
+		// torsional spring
+		// UNDONE: Per-axis spring constant?
+		springForceMagnitude = PUNCH_SPRING_CONSTANT * pmove->frametime;
+		springForceMagnitude = clamp(springForceMagnitude, 0, 2);
+
+		VectorMA(pmove->vuser3, -springForceMagnitude, punchangle, pmove->vuser3);
+
+		// don't wrap around
+		punchangle[0] = clamp(punchangle[0], -89, 89);
+		punchangle[1] = clamp(punchangle[1], -179, 179);
+		punchangle[2] = clamp(punchangle[2], -89, 89);
+	}
+}
+/*void PM_DropPunchAngle ( vec3_t punchangle )
 {
 	float	len;
 	
@@ -2798,7 +2833,7 @@ void PM_DropPunchAngle ( vec3_t punchangle )
 	len -= (10.0 + len * 0.5) * pmove->frametime;
 	len = max( len, 0.0 );
 	VectorScale ( punchangle, len, punchangle);
-}
+}*/
 
 /*
 ==============

@@ -206,6 +206,8 @@ int gmsgRainData = 0; //magic nipples - rain
 int gmsgLensFlare = 0; //magic nipples - lensflare
 int gmsgAddELight = 0; //magic nipples - elights
 
+int gmsgAddRope = 0; //magic nipples - ropes
+
 int gmsgStatusText = 0;
 int gmsgStatusValue = 0; 
 
@@ -257,6 +259,8 @@ void LinkUserMessages( void )
 	gmsgRainData = REG_USER_MSG("RainData", 16); //magic nipples - rain
 	gmsgLensFlare = REG_USER_MSG("Lensflare", -1); //magic nipples - lensflare
 	gmsgAddELight = REG_USER_MSG("AddELight", -1); //magic nipples - elights
+
+	gmsgAddRope = REG_USER_MSG("AddRope", -1); //magic nipples - ropes
 
 	gmsgStatusText = REG_USER_MSG("StatusText", -1);
 	gmsgStatusValue = REG_USER_MSG("StatusValue", 3); 
@@ -2506,8 +2510,6 @@ void CBasePlayer::PostThink()
 	if (delta > 0.25)
 		delta = 0.25;
 
-	//WorldPhysic.SetVelocity(this, pev->velocity); //magic nipples - TESTTEST
-
 	//float preserveZ = pev->velocity.z;
 	Vector copyVel = pev->velocity;
 	copyVel.z = 0;
@@ -2854,8 +2856,6 @@ void CBasePlayer::Spawn( void )
 	m_afPhysicsFlags	= 0;
 	m_fLongJump			= FALSE;// no longjump module. 
 	m_flTimeDelta		= -1;
-
-	//m_pBody = WorldPhysic.CreateBodyFromPlayer();// pPlayer); //magic nipples - TESTTEST
 
 	//magic nipples - rain
 	Rain_dripsPerSecond = 0;

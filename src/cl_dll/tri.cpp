@@ -32,6 +32,8 @@ extern vec3_t FogColor;
 #include "com_model.h"
 #include "studio_util.h"
 
+#include "tri_rope.h" //magic nipples - ropes
+
 extern engine_studio_api_t IEngineStudio;
 
 #define DLLEXPORT __declspec( dllexport )
@@ -280,6 +282,9 @@ void DLLEXPORT HUD_DrawTransparentTriangles( void )
 {
 	ProcessRain();
 	DrawRain();
+
+	if (CVAR_GET_FLOAT("cl_drawropes")) //magic nipples - ropes
+		gRopeRender.DrawRopes(1);
 
 #if defined( TEST_IT )
 //	Draw_Triangles();

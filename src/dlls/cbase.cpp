@@ -662,6 +662,9 @@ int CBaseEntity::Restore( CRestore &restore )
 	if( IsRigidBody() )
 		m_pBody = WorldPhysic.RestoreBody( this );
 
+	if (IsStaticBody())
+		m_pBody = WorldPhysic.RestoreStaticBody(this);
+
 	return status;
 }
 
