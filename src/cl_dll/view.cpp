@@ -26,6 +26,10 @@
 #include "shake.h"
 #include "hltv.h"
 
+// Buz
+#include "windows.h"
+#include "gl/gl.h"
+
 // Spectator Mode
 extern "C" 
 {
@@ -111,6 +115,8 @@ cvar_t *cl_rollangle;
 //magic nipples - weapon lag
 cvar_t* cl_weaponlag_amount;
 cvar_t* cl_weaponlag_speed;
+
+cvar_t* g_cvShadows; // Buz
 
 // These cvars are not registered (so users can't cheat), so set the ->value field directly
 // Register these cvars in V_Init() if needed for easy tweaking
@@ -1690,7 +1696,7 @@ void V_CalcSpectatorRefdef ( struct ref_params_s * pparams )
 
 }
 
-
+void SetupBuffer(void); // Buz
 
 void DLLEXPORT V_CalcRefdef( struct ref_params_s *pparams )
 {
@@ -1707,6 +1713,9 @@ void DLLEXPORT V_CalcRefdef( struct ref_params_s *pparams )
 	{
 		V_CalcNormalRefdef ( pparams );
 	}
+
+	if (g_cvShadows->value)	// Buz
+		SetupBuffer();
 
 /*
 // Example of how to overlay the whole screen with red at 50 % alpha
@@ -1783,6 +1792,8 @@ void V_Init (void)
 
 	cl_weaponlag_amount = gEngfuncs.pfnRegisterVariable("cl_weaponlag_amount", "0.8", FCVAR_CLIENTDLL | FCVAR_ARCHIVE); //Magic Nipples - weapon lag
 	cl_weaponlag_speed = gEngfuncs.pfnRegisterVariable("cl_weaponlag_speed", "6", FCVAR_CLIENTDLL | FCVAR_ARCHIVE); //Magic Nipples - weapon lag
+
+	g_cvShadows = gEngfuncs.pfnRegisterVariable("gl_shadows", "1", FCVAR_ARCHIVE); // Buz
 }
 
 

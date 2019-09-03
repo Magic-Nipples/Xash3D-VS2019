@@ -11,6 +11,60 @@
 #pragma once
 #endif
 
+// Buz Start
+
+typedef vec_t myvec3_t[3];
+
+// disable "identifier was truncated to '255' characters in the browser information" messages
+#pragma warning( disable: 4786 )
+
+#include "windows.h"
+#include "gl/gl.h"
+#include "gl/glext.h"
+#include <assert.h>
+
+#include <vector>
+#include <map>
+#include <string>
+
+const int MaxShadowFaceCount = 4000;
+
+#define CONPRINT gEngfuncs.Con_Printf
+
+// some precomputed data about model, for shadow volumes optimization
+
+struct Edge
+{
+	GLushort vertex0;
+	GLushort vertex1;
+	GLushort face0;
+	GLushort face1;
+};
+
+struct Face
+{
+	Face() {}
+	Face(GLushort v0, GLushort v1, GLushort v2) : vertex0(v0), vertex1(v1), vertex2(v2) {}
+	GLushort vertex0;
+	GLushort vertex1;
+	GLushort vertex2;
+};
+
+struct SubModelData
+{
+	std::vector<Face> faces;
+	std::vector<Edge> edges;
+};
+
+struct ModelExtraData
+{
+	std::vector<SubModelData> submodels;
+};
+
+typedef std::map<std::string, ModelExtraData> ExtraDataMap;
+
+// Buz End
+
 /*
 ====================
 CStudioModelRenderer
@@ -184,6 +238,29 @@ public:
 	// Concatenated bone and light transforms
 	float			(*m_pbonetransform) [ MAXSTUDIOBONES ][ 3 ][ 4 ];
 	float			(*m_plighttransform)[ MAXSTUDIOBONES ][ 3 ][ 4 ];
+
+	// Buz Start
+private:
+	ExtraDataMap	m_ExtraData;
+	ModelExtraData* m_pCurretExtraData;
+
+	myvec3_t		m_ShadowDir;
+
+	void			SetupModelExtraData(void);
+	void			BuildFaces(SubModelData& dst, mstudiomodel_t* src);
+	void			BuildEdges(SubModelData& dst, mstudiomodel_t* src);
+	void			AddEdge(SubModelData& dst, int face, int v0, int v1);
+
+	void			DrawShadowsForEnt(void);
+	void			DrawShadowVolume(SubModelData& data, mstudiomodel_t* model);
+
+	cvar_t* sv_skyvec_x;
+	cvar_t* sv_skyvec_y;
+	cvar_t* sv_skyvec_z;
+
+public:
+	void			GetShadowVector(myvec3_t& vecOut);
+	// Buz End
 };
 
 #endif // STUDIOMODELRENDERER_H

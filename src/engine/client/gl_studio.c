@@ -149,7 +149,7 @@ void R_StudioInit( void )
 	r_drawviewmodel = Cvar_Get( "r_drawviewmodel", "1", 0, "draw firstperson weapon model" );
 	r_viewmodelfov = Cvar_Get("cl_viewmodel_fov", "90", FCVAR_ARCHIVE, "fov of view models"); //magic nipples - weapon fov
 
-	r_shadows = Cvar_Get("r_shadows", "1", FCVAR_ARCHIVE, "drop shadow"); //magic nipples - shadows
+	r_shadows = Cvar_Get("r_shadows", "0", FCVAR_ARCHIVE, "drop shadow"); //magic nipples - shadows
 	r_shadow_height = Cvar_Get("r_shadow_height", "0", FCVAR_ARCHIVE, "shadow height");
 	r_shadow_x = Cvar_Get("r_shadow_x", "0.75", FCVAR_ARCHIVE, "shadow distance x axis");
 	r_shadow_y = Cvar_Get("r_shadow_y", "0", FCVAR_ARCHIVE, "shadow distance y-axis");
