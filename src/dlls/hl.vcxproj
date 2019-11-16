@@ -119,7 +119,9 @@
       </ImportLibrary>
       <ImageHasSafeExceptionHandlers />
       <AdditionalDependencies>newton.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>libcmtd.lib</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcmtd.lib;LIBCMT.lib</IgnoreSpecificDefaultLibraries>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
     </Link>
     <CustomBuildStep />
   </ItemDefinitionGroup>

@@ -1220,14 +1220,14 @@ int CPhysic :: BuildCollisionTree( char *szMapName )
 void CPhysic :: DebugDraw( void  ) 
 { 
 //#ifdef CLIENT_DLL
-	glDisable( GL_TEXTURE_2D ); 
+	/*glDisable( GL_TEXTURE_2D ); 
 	glColor3f( 1, 0.7f, 0 );
 	glBegin( GL_LINES );
 
 	NewtonWorldForEachBodyDo( m_pWorld, pfnDebugShowBodyCollision ); 
 
 	glEnd(); 
-	glEnable( GL_TEXTURE_2D );
+	glEnable( GL_TEXTURE_2D );*/
 //#endif
 }
 
