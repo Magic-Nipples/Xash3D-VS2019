@@ -369,7 +369,7 @@ void R_DrawSkyBox( void )
 
 	RI.isSkyVisible = true;
 
-	// don't fogging skybox (this fix old Half-Life bug)
+	// don't fogging skybox (this fix old Half-Life bug) //magic nipples - no fog for skybox
 	if( !RI.fogSkybox ) R_AllowFog( false );
 
 	if( RI.fogEnabled )

@@ -115,7 +115,7 @@
     </CustomBuildStep>
     <PostBuildEvent>
       <Message>Performing Post-Build Event on menu.dll</Message>
-      <Command>copy $(TargetDir)menu.dll "D:\Documents\Xash3D-VS2019_build\menu.dll"
+      <Command>if exist "D:\Documents\Xash3D-VS2019_build\." copy $(TargetDir)menu.dll "D:\Documents\Xash3D-VS2019_build\menu.dll"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

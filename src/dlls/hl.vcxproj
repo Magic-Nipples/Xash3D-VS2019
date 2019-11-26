@@ -90,7 +90,7 @@
     </CustomBuildStep>
     <PostBuildEvent>
       <Message>Performing Post-Build Event on server.dll</Message>
-      <Command>copy $(TargetDir)server.dll "D:\Documents\Xash3D-VS2019_build\valve\bin\server.dll"</Command>
+      <Command>if exist "D:\Documents\Xash3D-VS2019_build\valve\bin\." copy $(TargetDir)server.dll "D:\Documents\Xash3D-VS2019_build\valve\bin\server.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

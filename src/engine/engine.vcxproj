@@ -115,7 +115,7 @@
       </Outputs>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>copy $(TargetDir)engine.dll "D:\Documents\Xash3D-VS2019_build\engine.dll"</Command>
+      <Command>if exist "D:\Documents\Xash3D-VS2019_build\." copy $(TargetDir)engine.dll "D:\Documents\Xash3D-VS2019_build\engine.dll"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Performing Post-Build Event on engine.dll</Message>

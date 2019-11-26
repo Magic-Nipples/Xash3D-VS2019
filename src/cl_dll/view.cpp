@@ -1793,7 +1793,7 @@ void V_Init (void)
 	cl_weaponlag_amount = gEngfuncs.pfnRegisterVariable("cl_weaponlag_amount", "0.8", FCVAR_CLIENTDLL | FCVAR_ARCHIVE); //Magic Nipples - weapon lag
 	cl_weaponlag_speed = gEngfuncs.pfnRegisterVariable("cl_weaponlag_speed", "6", FCVAR_CLIENTDLL | FCVAR_ARCHIVE); //Magic Nipples - weapon lag
 
-	g_cvShadows = gEngfuncs.pfnRegisterVariable("gl_shadows", "1", FCVAR_ARCHIVE); // Buz
+	g_cvShadows = gEngfuncs.pfnRegisterVariable("gl_shadows", "0", FCVAR_ARCHIVE); // Buz
 }
 
 
