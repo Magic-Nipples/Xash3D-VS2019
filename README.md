@@ -16,7 +16,6 @@
 [Wiki](https://github.com/Magic-Nipples/Xash3D-VS2019/wiki) _(under construction)_
 
 **Donations:**\
-[Patreon](https://www.patreon.com/magicnipples) \
 [PayPal](https://www.paypal.me/magicnipples)
 
 
